@@ -1,0 +1,156 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Análisis}
+\label{C:analisis}
+
+\section{Introducción}
+
+En esta sección se analizarán los requisitos funcionales del sistema y se definirá el alcance funcional del proyecto.
+
+\par{Para facilitar su desarrollo y comprensión, el trabajo se ha estructurado en varios bloques que pueden abordarse de forma modular:}
+
+\begin{itemize}
+    \item Diseño del IDE.
+    \item Diseño del sistema de plugins.
+    \item Desarrollo de un juego de ejemplo.
+    \item Desarrollo de un manual de uso.
+\end{itemize}
+
+\par{El desarrollo de estos bloques se realizará de manera incremental, ya que cada uno de ellos depende en cierta medida de la implementación del anterior. Esta aproximación permite validar progresivamente el funcionamiento del sistema a medida que se incorporan nuevas funcionalidades.}
+
+\par{Asimismo, se definirán los distintos casos de uso del sistema, en los que el único actor será el usuario, que será el único que interactúa con la herramienta.}
+
+\clearpage
+
+\section{Objetivos y funciones}
+
+El objetivo de este proyecto es el desarrollo de una herramienta multiplataforma que permita la creación de software en lenguaje C para sistemas de 8 bits. Asimismo, la herramienta deberá ser lo suficientemente versátil como para permitir la incorporación de nuevas funcionalidades mediante un sistema de plugins.
+
+\par{El sistema deberá integrar inicialmente las librerías de GBDK-2020 y Z88DK, junto con sus respectivos compiladores basados en el compilador SDCC. Gracias a esta integración, la herramienta podrá compilar software para más de 150 plataformas diferentes \cite{z88dk_platforms} \cite{gbdk_supported_consoles}, la mayoría de ellas basadas en el procesador Z80 de Zilog.}
+
+\par{Entre las funciones principales que deberá implementar el sistema se encuentran las siguientes:}
+
+\begin{itemize}
+    \item Funcionamiento en sistemas Windows 10.
+    \item Posibilidad de compilar el código fuente en sistemas Linux y macOS.
+    \item Integración con los entornos GBDK-2020 y Z88DK.
+    \item Capacidad para compilar software para múltiples plataformas de 8 bits.
+    \item Visualización de errores y advertencias generados durante la compilación.
+    \item Inclusión de resaltado de sintaxis para el lenguaje C.
+    \item Gestión básica de proyectos y archivos fuente.
+    \item Integración con emuladores para la ejecución del software generado.
+    \item Arquitectura extensible basada en plugins.
+    \item Inclusión de ejemplos de proyectos de referencia.
+    \item Incorporación de un manual de uso para el usuario.
+\end{itemize}
+
+\clearpage
+
+
+\section{Requisitos mínimos y restricciones}
+
+Para el correcto funcionamiento de la aplicación, se deben cumplir una serie de requisitos mínimos en el equipo en el que se instale:
+\begin{itemize}
+    \item Java 17 o superior 
+    \item 4 GB de memoria RAM como mínimo (8 GB recomendados) 
+    \item 200 MB de espacio disponible en disco 
+    \item Compilador de C (como Z88DK, GBDK, entre otros) 
+\end{itemize}
+En cuanto a las restricciones, no se contemplan limitaciones significativas en su uso. No obstante, al tratarse de una aplicación desarrollada en Java, aunque es multiplataforma, no está diseñada para su ejecución en dispositivos móviles ni tabletas.
+
+
+\section{Modelo de desarrollo utilizado}
+
+Para el desarrollo de este proyecto se ha seguido un enfoque iterativo o incremental. A partir de un primer prototipo muy básico, se han ido añadiendo nuevas funcionalidades y probándolas de forma progresiva.
+
+En proyectos de cierta complejidad, este enfoque presenta la ventaja de permitir la detección y corrección temprana de errores, antes de su integración en el conjunto principal del sistema.
+
+Este método ha facilitado la adaptación a posibles cambios en los requisitos, así como la mejora continua de la aplicación. No obstante, se ha identificado como principal limitación la falta de una planificación más estructurada, lo que ha derivado en una menor organización en las fases iniciales del proyecto.
+
+\clearpage
+
+\section{Tecnologías}
+
+
+\subsection{Introducción}
+
+Este proyecto, a pesar de su estética retro, es fundamentalmente una aplicación desarrollada en Java, lo que condiciona en gran medida las tecnologías empleadas en su desarrollo. Como lenguaje de programación se ha utilizado Java, mientras que para el desarrollo diario se ha empleado el entorno de desarrollo integrado IntelliJ IDEA.
+
+Para la interfaz gráfica se ha optado por el uso de la librería JavaFX, que, aunque el ecosistema Java no destaca especialmente por el desarrollo de interfaces gráficas modernas, permite dotar a la aplicación de un aspecto más actual y visualmente atractivo.
+
+El control de versiones y la gestión del proyecto se han llevado a cabo mediante el uso conjunto de Maven y GitHub.
+
+
+\subsection{Java}
+
+Java es un lenguaje de programación de propósito general, orientado a objetos y concurrente, diseñado para facilitar el desarrollo de aplicaciones de manera sencilla y segura. Está basado en clases y presenta similitudes con lenguajes como C y C++, aunque simplifica su uso al eliminar ciertas características complejas e incorporar mecanismos que mejoran la seguridad y la portabilidad. Se trata de un lenguaje de tipado estático, en el que los errores pueden detectarse en tiempo de compilación, diferenciándose claramente de los errores en tiempo de ejecución. Además, Java se caracteriza por su independencia de plataforma gracias al uso de la máquina virtual Java (JVM), que permite ejecutar el mismo código en distintos sistemas. Asimismo, incluye gestión automática de memoria mediante un recolector de basura, lo que reduce los problemas asociados a la gestión manual de memoria y contribuye a la robustez del software.\cite{gosling_java_lang_spec}
+
+Originalmente, Java fue anunciado en mayo de 1995 por Sun Microsystems, aunque no fue lanzado al mercado hasta el 23 de enero de 1996 \cite{sun_microsystems_announcement}. En la actualidad, Java pertenece a la empresa Oracle Corporation, tras la adquisición de Sun Microsystems por parte de esta.
+
+La elección de Java como lenguaje principal del proyecto se fundamenta en varios aspectos clave. En primer lugar, su carácter multiplataforma permite desarrollar aplicaciones que pueden ejecutarse en distintos sistemas operativos sin necesidad de modificaciones, lo que aporta versatilidad y facilita su integración en diferentes entornos de trabajo. En segundo lugar, Java dispone de un amplio ecosistema de herramientas y tecnologías, como JavaFX o Maven, que resultan fundamentales para el desarrollo de interfaces gráficas y la gestión de dependencias del proyecto. Por último, su enfoque basado en la Programación Orientada a Objetos (POO) favorece la escalabilidad y el mantenimiento del software, permitiendo además la aplicación de patrones arquitectónicos como el modelo Vista-Controlador (MVC), lo que contribuye a una mejor organización del sistema.
+
+\clearpage
+
+\subsection{Maven}
+
+Maven es una herramienta para la gestión y construcción de proyectos software que va más allá de la simple compilación del código. A través de la gestión del archivo pom.xml (Project Object Model), proporciona un modelo de construcción uniforme y estructurado. Además, se basa en el principio de “convención sobre configuración”, lo que simplifica la organización del proyecto y reduce la necesidad de configuraciones explícitas.
+
+Maven incorpora objetivos (goals) predefinidos que permiten ejecutar tareas específicas, como la compilación, las pruebas o el empaquetado del software. En este proyecto, se ha utilizado para la gestión de dependencias y para automatizar las distintas fases del ciclo de construcción, incluyendo la compilación y el empaquetado de la aplicación.
+
+\subsection{GitHub}
+
+GitHub es una plataforma web que ofrece servicios de alojamiento de código fuente y facilita la colaboración entre desarrolladores. Utiliza Git como sistema de control de versiones y permite el trabajo colaborativo en equipo. En la actualidad, GitHub pertenece a Microsoft y dispone de numerosas funcionalidades orientadas a la colaboración, lo que facilita tanto el mantenimiento de proyectos open source como la participación en ellos.
+
+Por su parte, Git es un sistema de control de versiones distribuido desarrollado por Linus Torvalds en el año 2005, y se ha convertido en el estándar de facto en la industria dentro de su ámbito.
+
+En este proyecto, se ha utilizado GitHub como plataforma de alojamiento, estando disponible el repositorio en la siguiente dirección: \url{https://github.com/ginjol83/samaruc-editor}. Esto no solo garantiza la trazabilidad del desarrollo, sino que también facilita su acceso, revisión y posible colaboración por parte de otros desarrolladores.
+
+
+\clearpage
+\subsection{IntelliJ IDEA}
+
+IntelliJ IDEA es un entorno de desarrollo integrado (IDE) desarrollado por JetBrains, orientado principalmente al desarrollo de software en lenguajes como Java y Kotlin, aunque también puede utilizarse como un editor multipropósito para otros lenguajes de programación.
+
+Según su documentación oficial \cite{intellij_idea_documentation}, IntelliJ IDEA es un IDE diseñado para el desarrollo profesional, cuyo objetivo es maximizar la productividad del desarrollador. Para ello, incorpora funcionalidades como autocompletado inteligente de código, análisis estático y herramientas avanzadas de refactorización, automatizando tareas rutinarias y repetitivas.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=12cm]{Lenguajes_soportados_IntelliJ.jpg}
+    \caption{Lenguajes soportados por IntelliJ IDEA según el libro de Hagos (Beginning IntelliJ IDEA)\cite{hagos_intellij_idea}.}
+    \label{fig:lenguajesIntelliJ}
+\end{figure}
+
+La elección de este entorno para el desarrollo del presente proyecto se justifica por su amplia adopción en el ámbito profesional del desarrollo en Java, así como por la gran cantidad de documentación disponible, tanto por parte de JetBrains como de la comunidad. Además, ofrece un alto grado de personalización, lo que mejora la experiencia de desarrollo y facilita la adaptación a las necesidades del programador. En este IDE se ha desarrollado íntegramente el código fuente en Java, así como la gestión de dependencias y la construcción del proyecto mediante Maven.
+
+\clearpage
+
+\subsection{JavaFX}
+
+JavaFX es una librería estándar de Java, incorporada desde versiones posteriores, que se utiliza para el desarrollo de interfaces gráficas modernas y atractivas. Está basada en componentes (botones, ventanas, layouts, entre otros) y permite la separación entre la lógica y la presentación mediante el uso de archivos FXML.
+
+JavaFX se diseñó como un relevo natural de Java Swing, que había quedado desactualizado en comparación con otras soluciones del mercado. Además de permitir el uso de archivos de presentación basados en XML, incorpora el uso de hojas de estilo CSS para la personalización de la interfaz.
+
+En el desarrollo de este proyecto, JavaFX ha permitido una correcta separación de la capa de presentación dentro del marco del patrón MVC (Model-View-Controller), además de contribuir a la escalabilidad del proyecto y aportar una imagen visual más atractiva.
+
+\section{Descripción del modelo}
+\subsection{Requisitos}
+\subsubsection{Listado de requisitos}
+\subsection{Casos de uso}
+
+Crear proyecto
+Abrir proyecto
+Editar código
+Guardar archivo
+Compilar proyecto
+Ejecutar/validar compilación
+Seleccionar compilador
+Ver resultados
+
+
+\subsubsection{Diagrama de casos de uso}
+\subsubsection{Casos de uso}
+\subsection{Diagrama de estados}
+\subsection{Diagrama de clases}
+
+\end{document}

@@ -1,0 +1,313 @@
+% Comandos para crear la portada y la primera página del PFG
+%% Título del PFG
+\newcommand{\PFGtitulo}{IDE para desarrollo de aplicaciones para máquinas de 8 bits con C}
+%% Título corto, para mostrar en el encabezado de las páginas pares. Por defecto se pone el título, pero, si es muy largo, puede acortarse aquí
+\newcommand{\PFGtitulocorto}{\PFGtitulo}
+%% Autor/a y directores/as del PFG
+\newcommand{\PFGautor}{Andrés Giménez Perales}
+\newcommand{\PFGdirector}{Jose Manuel Diaz Martinez}
+%% Descomentar y rellenar la siguiente línea si hay codirector/a en el PFG
+%\newcommand{\PFGcodirector}{Codirector/a del PFG}
+%% Grado. A elegir entre:
+%% Ingeniería Informática
+%% Ingeniería en Tecnologías de la Información
+\newcommand{\PFGgrado}{Ingeniería Informática}
+%% Modalidad. A elegir entre:
+%% genérica
+%% específica
+\newcommand{\PFGmodalidad}{Específica}
+%% Curso académico en formato 20xx/20xx+1. Por ejemplo 2022/2023
+\newcommand{\PFGcursoacademico}{2025/2026}
+%% Convocatoria. A elegir entre:
+%% junio
+%% septiembre
+%% diciembre
+\newcommand{\PFGconvocatoria}{Junio}
+%% Fecha de lectura (si no se sabe el día concreto, poner mes y año}
+\newcommand{\PFGfechadefensa}{Junio 2026}
+
+
+\documentclass[12pt,twoside]{book}
+\usepackage{graphicx}
+\usepackage{fontawesome5}
+\usepackage[utf8]{inputenc}
+\usepackage[papersize={210mm,297mm},tmargin=25mm,bmargin=25mm,lmargin=20mm,rmargin=20mm]{geometry}
+% Paquete para tablas profesionales
+\usepackage{booktabs}
+
+% No indentar los párrafos y separarlos 1cm
+\setlength\parindent{0cm}
+\setlength\parskip{1em}
+
+% Para tener los elementos de texto en español
+\usepackage[spanish]{babel}
+% Para poder resaltar un texto en amarillo con \hl{}
+\usepackage{soul}
+% Definición de colores
+\usepackage{xcolor}
+\definecolor{links}{rgb}{0.35, 0.4, 0.35}
+\definecolor{urls}{rgb}{0,0,1}
+\definecolor{cites}{rgb}{0.8,0,0}
+\definecolor{gray20}{gray}{0.20}
+
+% Hiperreferencias
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks = true,
+	linkcolor = links,
+	urlcolor = urls,
+	citecolor = cites
+}
+
+
+% Formato de los listados
+\usepackage{listings}
+\lstloadlanguages{C,C++,Haskell,HTML,Java,PHP,Python}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    backgroundcolor=\color{backcolour}, % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+	basicstyle=\footnotesize\ttfamily\color{black},        % the size of the fonts that are used for the code
+	belowcaptionskip=1\baselineskip,
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	captionpos=b,                    % sets the caption-position to bottom
+	deletekeywords={...},            % if you want to delete keywords from the given language
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	firstnumber=1,                % start line enumeration with line 1000
+	frame=single,	                   
+	%identifierstyle=\color{blue!50!black},
+	keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+	%language=C,                 % the language of the code
+	%morekeywords={*,...},            % if you want to add more keywords to the set
+	numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+	numbersep=10pt,                   % how far the line-numbers are from the code
+	numberstyle=\tiny\color{gray}, % the style that is used for the line-numbers
+	rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+	morecomment=[n]{(*}{*)},
+	morecomment=[n][\color{magenta}]{\%I}{\ },
+	morecomment=[n][\color{magenta}]{\%Q}{\ },
+	showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+	showstringspaces=false,          % underline spaces within strings only
+	showtabs=false,                  % show tabs within strings adding particular underscores
+	stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+	tabsize=2,	                   % sets default tabsize to 2 spaces
+	title=\lstname,
+	xleftmargin=1.5cm,
+}
+\lstset{style=mystyle}
+
+
+
+
+% Añadir ficheros externos
+\usepackage{subfiles}
+% Soporte para anexos
+\usepackage{appendix}
+% Paquetes para figuras
+\usepackage{caption}
+\usepackage{subcaption}
+% Para las tablas
+\usepackage{tabularx}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{adjustbox}
+%Encabezados bonitos y acordes al reglamento
+\usepackage{fancyhdr}
+\fancyhf{}
+\lhead[\thepage]{\leftmark}
+\rhead[\PFGtitulocorto]{\thepage}
+\setlength{\headheight}{16pt}
+\pagestyle{empty}
+
+% Paquete para poner la bibliografia en la table of contents
+\usepackage[nottoc,notlot,notlof]{tocbibind}
+% Cambiamos el espacio en blanco enorme que por defecto hay en las páginas inicio de capítulo
+\usepackage{titlesec}
+\titleformat{\chapter}[display]   
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}   
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
+
+% Para crear subsubsubsection
+\setcounter{secnumdepth}{4}
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Ruta en la que pondremos las imágenes para el documento
+\graphicspath{ {imagenes/} }
+% Redifinimos el nombre que asigna babel spanish a las tablas (cuadro) a tabla
+\renewcommand{\spanishtablename}{Tabla}
+\renewcommand{\spanishlisttablename}{Índice de tablas}
+\renewcommand{\spanishcontentsname}{Índice}
+% Redefinimos el nombre de apéndice a anexo
+\renewcommand{\appendixname}{Anexos}
+\renewcommand{\appendixtocname}{Anexos}
+\renewcommand{\appendixpagename}{Anexos}
+
+% Definimos el comando de página en blanco
+\newcommand\paginablanco{%
+    \null
+    \thispagestyle{empty}%
+    \newpage}
+
+% Definimos el comando de página en blanco sin avanzar numeracion
+\newcommand\paginablancosin{%
+    \paginablanco{}
+    \addtocounter{page}{-1}}
+
+% Mayor anchura en las tablas
+\renewcommand{\arraystretch}{1.5}
+% Mayor ancuhura en las fracciones
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+% Comando escribir PFG
+\newcommand{\pfg}{Proyecto Fin de Grado }
+
+
+% Comenzamos el documento
+\begin{document}
+\pagenumbering{gobble} % para no incluir números en la portada y primera página
+
+% Hacemos la portada
+\begin{titlepage}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics{rosadelosvientos.png}
+\end{figure}
+
+\begin{center}
+    {\scshape\Large Universidad Nacional de Educación a Distancia \par}
+    {\scshape\Large Escuela Técnica Superior de Ingeniería Informática \par}
+    \vfill
+    \large{Proyecto de fin de Grado en \PFGgrado}\\
+    \vfill
+    {\bfseries\Huge \textcolor{black}{\PFGtitulo} \par}
+    \vfill
+\end{center}
+
+\vspace*{3cm}
+{\huge \textcolor{black}{\PFGautor} \par}
+{\huge \textcolor{black}{Dirigido por: \PFGdirector} \par}
+\ifdefined\PFGcodirector
+  \huge \textcolor{black}{Codirigido por: \PFGcodirector} \par
+\fi
+{\huge \textcolor{black}{Curso \PFGcursoacademico, convocatoria \PFGconvocatoria} \par}
+
+\chapter*{}
+
+\thispagestyle{empty}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics{rosadelosvientos.png}
+\end{figure}
+
+\begin{center}
+
+    {\bfseries\Huge \textcolor{black}{\PFGtitulo} \par}
+    \vfill
+    {\bfseries\Large \textcolor{black}{Proyecto de fin de Grado en \PFGgrado} \par}
+    {\bfseries\Large \textcolor{black}{de modalidad \PFGmodalidad} \par}
+\end{center}
+
+\vspace*{5cm}
+{\Large Realizado por: \PFGautor \par}
+{\Large Dirigido por: \PFGdirector \par}
+\ifdefined\PFGcodirector
+  {\Large Codirigido por: \PFGcodirector \par}
+\fi%
+
+%%{\Large Codirigido por: \PFGcodirector \par}
+\vfill
+{\Large Fecha de lectura y defensa: \PFGfechadefensa \par}
+
+\end{titlepage}
+
+\pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
+
+% Agradecimientos
+\chapter*{Agradecimientos}
+\thispagestyle{empty}
+\begin{flushright}
+{\itshape
+	Quiero expresar mi más sincero agradecimiento a mi tutor, José Manuel Díaz Martínez, por su orientación, paciencia y apoyo constante durante la realización de este trabajo. Sus consejos y su rigor académico han sido fundamentales para el desarrollo de este proyecto.
+\par
+	Asimismo, agradezco al profesorado del Grado en Ingeniería Informática de la UNED por los conocimientos transmitidos a lo largo de estos años, que han hecho posible la elaboración de este estudio.
+\par
+	Finalmente, quiero agradecer a mi familia y a las personas que me han acompañado durante esta etapa por su apoyo incondicional, comprensión y motivación constante. A mis padres, por creer siempre que podría lograrlo; a mi mujer, por apoyarme sin condiciones; a mi hermano, por darme ejemplo; y muy especialmente a mi hija Aitana, por ser mi mayor motivación incluso en los momentos más difíciles.
+}
+\end{flushright}
+
+\chapter*{Resumen} % El * indica que no queremos que añada la palabra "Capitulo"
+
+Este trabajo aborda el desarrollo de un entorno de desarrollo integrado (IDE) enfocado al desarrollo de software en C para máquinas de 8 bits. El objetivo principal es que la aplicación soporte el desarrollo para múltiples plataformas de ordenadores y videoconsolas de las décadas de 1980 y 1990 basadas en tecnología de 8 bits. Para ello, se ha desarrollado un software utilizando principalmente tecnologías Java, capaz de compilar código mediante distintos compiladores dirigidos a estas arquitecturas y que, además, incorpora un sistema de plugins que permite ampliar y extender sus funcionalidades.
+
+Los resultados muestran que la herramienta proporciona un entorno unificado que simplifica el flujo de trabajo en el desarrollo para arquitecturas de 8 bits, mejorando la accesibilidad, la organización y la eficiencia del proceso.
+
+\chapter*{Abstract} % El * indica que no queremos que añada la palabra "Capitulo"
+
+This work addresses the development of an Integrated Development Environment (IDE) focused on C software development for 8-bit systems. The main objective is to enable the application to support development for multiple platforms of computers and video game consoles from the 1980s and 1990s based on 8-bit technology. To this end, a software solution has been developed primarily using Java technologies, capable of compiling code through different compilers targeting these architectures and incorporating a plugin system that allows the extension and enhancement of its functionalities.
+
+The results show that the tool provides a unified environment that simplifies the workflow in 8-bit architecture development, improving accessibility, organization, and overall process efficiency.
+
+\chapter*{Palabras clave} % El * indica que no queremos que añada la palabra "Capitulo"
+
+IDE, desarrollo de software, lenguaje C, sistemas de 8 bits, compilación cruzada, arquitectura de plugins, ZX Spectrum, Game Boy.
+
+\chapter*{Keywords} % El * indica que no queremos que añada la palabra "Capitulo"
+
+IDE, software development, C language, 8-bit systems, cross-compilation, plugin architecture, ZX Spectrum, Game Boy.
+
+\tableofcontents %% Índice general
+
+%% SI NO HAY ÍNDICE DE TABLAS, COMENTAR LAS DOS SIGUIENTES LÍNEAS
+\listoftables    %% Índice de tablas
+\addcontentsline{toc}{section}{Índice de tablas} % Queremos que aparezca en el índice
+
+%% SI NO HAY ÍNDICE DE FIGURAS, COMENTAR LAS DOS SIGUIENTES LÍNEAS
+\listoffigures   %% Índice de figuras
+\addcontentsline{toc}{section}{Índice de figuras} % Queremos que aparezca en el índice
+\newpage
+
+\paginablanco{}
+
+%% Comenzamos con la numeración arábiga y el estilo de cabeceras de páginas definido, porque aquí empieza el contenido
+\pagenumbering{arabic}
+\pagestyle{fancy}
+%% Ejemplo de importación de capítulos
+\subfile{capitulos/C1-introduccion}
+\subfile{capitulos/C2-analisis}
+\subfile{capitulos/C4-disenno}
+\subfile{capitulos/C5-desarrollo}
+\subfile{capitulos/C6-pruebas}
+\subfile{capitulos/C7-conclusiones}
+
+%% Bibliografía 
+\newpage
+\subfile{capitulos/referencias}
+
+\clearpage
+
+%% Anexos
+\appendix
+\subfile{capitulos/A1-anexo}
+\subfile{capitulos/A2-anexo}
+
+
+%% cosas de plantilla.tex 
+% \newpage
+% \subfile{capitulos/plantilla.tex}
+ 
+\end{document} 

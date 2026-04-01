@@ -1,0 +1,141 @@
+
+%% EJEMPLO DE BIBLIOGRAFÍA
+
+% @book{tolkien,
+%    author    = {Tolkien, J.R.R.},
+%    title     = {El Señor de los Anillos},
+%    publisher = {Círculo de Lectores},
+%    address   = {Barcelona},
+%    year      = {1991},
+%    isbn      = {84-226-1633-5}
+% }
+
+
+% @Electronic{z80Decoding,
+%   author   = {Cristian Dinu},
+%   language = {English},
+%   month    = jun,
+%   title    = {DECODING Z80 OPCODES},
+%   url      = {http://z80.info/decoding.htm},
+%   year     = {2023},
+%   note     = {Acceso: 2023-10-23}
+% }
+
+
+Todos los ejemplos de código \LaTeX\ de este documento se deben consultar en el código fuente. El PDF es el resultado final del código escrito.
+
+Este párrafo incluye ejemplos sobre cómo se debe introducir el texto en \LaTeX\  para su correcto formateo. Incluye \textbf{texto en negrita}, \textit{en cursiva (itálica)}, \underline{texto subrayado} y \texttt{texto en letra monoespaciada}. Para finalizar un párrafo, deberemos dejar una línea en blanco tras él.
+
+Como se puede ver, \LaTeX\ automáticamente identificará eso como un final de párrafo y lo separará del siguiente.
+
+También se ha incluído el paquete necesario para poder \hl{resaltar un texto}. Esto resulta de utilidad para marcar un texto, por ejemplo al realizar la revisión de la memoria.
+
+\section{Ejemplos de listas}
+
+\LaTeX\ ofrece dos tipos de listas:
+
+\begin{enumerate}
+    \item Las listas numeradas, como esta.
+    \item Las listas no numeradas, como la siguiente:
+    \begin{itemize}
+        \item Las listas pueden anidarse.
+        \item Se pueden cambiar los puntos.
+        \item[!] Por cualquier cosa.
+        \item[NOTA] No necesariamente un único carácter.
+        \item[] También puede ser por nada.
+    \end{itemize}
+\end{enumerate}
+
+\section{Ejemplos de figura y tabla}
+
+Abrimos una sección nueva para dar un ejemplo sobre como insertar una figura y una tabla. Mira el índice y verás que tanto la figura~\ref{fig:libro} como la tabla~\ref{tab:ejemplo} aparecen en los índices correspondientes. Como se puede ver, se pueden incluir las referencias cuantas veces se quiera, que \LaTeX\ va a incluir automáticamente enlaces a las figuras y tablas.
+
+\subsection{Figuras}
+
+Para insertar una figura hay que usar el código que se puede ver a continuación.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=7cm]{libro.png}
+    \caption{Imagen de un libro.}
+    \label{fig:libro}
+\end{figure}
+
+Además, deben referenciarse en el texto con el número de referencia a la figura. Es decir, no se debe poner ``como se puede ver en la siguiente/anterior figura'', sino que se debería poner ``como se puede ver en la figura~\ref{fig:libro}''.
+
+Como se puede ver en el código, al importar el fichero gráfico de la figura\footnote{Que se ha descargado de \url{https://www.flaticon.es/icono-gratis/libro_2784389}} podemos incluir un parámetro opcional con su anchura. \LaTeX\  redimensionará automáticamente la altura para guardar las proporciones. En este párrafo, además, hemos visto un ejemplo de nota al pie y de url.
+
+\subsection{Tablas}
+
+Si ahora queremos introducir una tabla, deberemos hacer algo similar al código mostrado a continuación, que produce la tabla~\ref{tab:ejemplo}. Esta tabla incluye ejemplos de celdas que ocupan más de una fila/columna.
+
+\begin{table}[!h]
+    \caption{Ejemplo de tabla}
+    \centering
+    \begin{tabular}{|c|r|l|}
+        \hline
+        Texto & \multicolumn{2}{c|}{Texto Alineado} \\
+        \cline{2-3}
+        Centrado & a la Derecha & a la Izquierda \\
+        \hline
+        \multirow{2}{*}{Separadores} & celdas & \& \\
+        \cline{2-3}
+        & filas & $\backslash \backslash$ \\
+        \hline
+    \end{tabular}
+    \label{tab:ejemplo}
+\end{table}
+
+\section{Bibliografía}
+
+Todos los libros y artículos de la bibliografía se meten en el fichero bibliografia.bib en formato bibtex, que es un formato estándar de representación bibliográfica.
+
+% Además, la bibliografía debe ser correctamente citada desde el texto cuando sea oportuno. Igual que los magos, que llegan justo cuando se lo proponen, ni antes ni después~\cite{tolkien}.
+
+También podría ser que alguna referencia no fuese física, sino una web consultada durante la realización del trabajo, como sería el caso de~\cite{z80Decoding}. Es importante incluir información sobre el momento en el que se accedió a la web, ya que se trata de un medio susceptible de cambiar con el tiempo.
+
+\section{Si abrimos una sección}
+
+\subsection{A continuación abrimos una subsección}
+
+\subsubsection{Y finalmente abrimos una subsubsección}
+
+Esto es un ejemplo de algo \textbf{que no se debe hacer}: abrir un subapartado tras abrir el apartado dentro del que va sin ningún texto entre medias. ¡Es algo a evitar! No olvides meter un texto introductorio justo al abrir un capítulo, sección, subsección, etc.
+
+\section{Ejemplo de código}
+
+A continuación se muestra un trozo de código. El formato puede redefinirse con $\backslash$\texttt{lstset}. Hay una definición por defecto en el fichero \texttt{main.tex}.
+
+\begin{lstlisting}[language = Java]
+public class FibonacciIterativo {
+ 
+    public static void main(String[] args) {
+ 
+        int serie = 10, num1 = 0, num2 = 1, suma = 1;
+         
+        for (int i = 1; i < serie; i++) {
+            suma = num1 + num2;
+            num1 = num2;
+            num2 = suma;
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Estructura de la memoria}
+
+La presente plantilla establece una estructura típica de memoria de PFG en el que se desarrolla una aplicación. ¡Ojo! \underline{Solo pretende ser un ejemplo}, ya que \textbf{para cada PFG en particular la estructura debería ser consensuada con el/la director/a del PFG}.
+
+En general (y esto sirve para todos los PFG) el capítulo~\ref{C:introduccion} introduce el problema a resolver, qué lo ha motivado y se fijan objetivos a cubrir.
+
+En el capítulo~\ref{C:estado_arte} se revisan posibles soluciones ya existentes. Se debe realizar un análisis crítico de ellas para extraer cosas que nos gustan y cosas que no.
+
+En base a ese análisis crítico, en el capítulo~\ref{C:propuesta} se realiza una propuesta: una suerte de ``carta a los Reyes Magos'' que describa cómo se comportará nuestra aplicación, pero sin entrar en detalles de diseño, ni mostrar imágenes reales de la misma. Aquí encajaría también un análisis económico del coste de realización del proyecto.
+
+En el capítulo~\ref{C:disenno} se realizaría un diseño de la aplicación. Sabemos cómo queremos que se comporte, vamos a diseñar su funcionamiento. En estos momentos es cuando deducimos las necesidades que va a tener (si necesita persistencia de datos, si necesita autenticación de usuarios, etc.).
+
+En el capítulo~\ref{C:desarrollo}, comentamos el desarrollo de la aplicación: metodología de desarrollo, tecnología utilizada (y por qué se descarta otra tecnología). Se explica la estructura de la posible base de datos, el diagrama de clases, etc.
+
+En el capítulo~\ref{C:pruebas} se detallarían las pruebas realizadas sobre la aplicación y en el~\ref{C:conclusiones} se enunciarían las conclusiones del proyecto y se propondrían posibles líneas futuras de trabajo.
+
+En cuanto a los anexos, la regla sería dejar para los anexos todo aquello que, si bien es interesante para el PFG, no es estrictamente necesario para entenderlo. Por ejemplo, un manual de usuario, un manual de instalación, el código completo de alguna parte relevante de la aplicación, etc.
