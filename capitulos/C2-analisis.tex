@@ -75,7 +75,7 @@ Este método ha facilitado la adaptación a posibles cambios en los requisitos, 
 
 \subsection{Introducción}
 
-Este proyecto, a pesar de su estética retro, es fundamentalmente una aplicación desarrollada en Java, lo que condiciona en gran medida las tecnologías empleadas en su desarrollo. Como lenguaje de programación se ha utilizado Java, mientras que para el desarrollo diario se ha empleado el entorno de desarrollo integrado IntelliJ IDEA.
+Este proyecto, es fundamentalmente una aplicación desarrollada en Java, lo que condiciona en gran medida las tecnologías empleadas en su desarrollo. Como lenguaje de programación se ha utilizado Java, mientras que para el desarrollo diario se ha empleado el entorno de desarrollo integrado IntelliJ IDEA.
 
 Para la interfaz gráfica se ha optado por el uso de la librería JavaFX, que, aunque el ecosistema Java no destaca especialmente por el desarrollo de interfaces gráficas modernas, permite dotar a la aplicación de un aspecto más actual y visualmente atractivo.
 
@@ -88,7 +88,7 @@ Java es un lenguaje de programación de propósito general, orientado a objetos 
 
 Originalmente, Java fue anunciado en mayo de 1995 por Sun Microsystems, aunque no fue lanzado al mercado hasta el 23 de enero de 1996 \cite{sun_microsystems_announcement}. En la actualidad, Java pertenece a la empresa Oracle Corporation, tras la adquisición de Sun Microsystems por parte de esta.
 
-La elección de Java como lenguaje principal del proyecto se fundamenta en varios aspectos clave. En primer lugar, su carácter multiplataforma permite desarrollar aplicaciones que pueden ejecutarse en distintos sistemas operativos sin necesidad de modificaciones, lo que aporta versatilidad y facilita su integración en diferentes entornos de trabajo. En segundo lugar, Java dispone de un amplio ecosistema de herramientas y tecnologías, como JavaFX o Maven, que resultan fundamentales para el desarrollo de interfaces gráficas y la gestión de dependencias del proyecto. Por último, su enfoque basado en la Programación Orientada a Objetos (POO) favorece la escalabilidad y el mantenimiento del software, permitiendo además la aplicación de patrones arquitectónicos como el modelo Vista-Controlador (MVC), lo que contribuye a una mejor organización del sistema.
+La elección de Java como lenguaje principal del proyecto se fundamenta en varios aspectos clave. En primer lugar, su carácter multiplataforma permite desarrollar aplicaciones que pueden ejecutarse en distintos sistemas operativos sin necesidad de modificaciones, lo que aporta versatilidad y facilita su integración en diferentes entornos de trabajo. En segundo lugar, Java dispone de un amplio ecosistema de herramientas y tecnologías, como JavaFX o Maven, que resultan fundamentales para el desarrollo de interfaces gráficas y la gestión de dependencias del proyecto. Por último, su enfoque basado en la Programación Orientada a Objetos (POO) favorece la escalabilidad y el mantenimiento del software, lo que contribuye a una mejor organización del sistema.
 
 \clearpage
 
@@ -105,6 +105,14 @@ GitHub es una plataforma web que ofrece servicios de alojamiento de código fuen
 Por su parte, Git es un sistema de control de versiones distribuido desarrollado por Linus Torvalds en el año 2005, y se ha convertido en el estándar de facto en la industria dentro de su ámbito.
 
 En este proyecto, se ha utilizado GitHub como plataforma de alojamiento, estando disponible el repositorio en la siguiente dirección: \url{https://github.com/ginjol83/samaruc-editor}. Esto no solo garantiza la trazabilidad del desarrollo, sino que también facilita su acceso, revisión y posible colaboración por parte de otros desarrolladores.
+
+\subsection{JavaFX}
+
+JavaFX es una librería estándar de Java, incorporada desde versiones posteriores, que se utiliza para el desarrollo de interfaces gráficas modernas y atractivas. Está basada en componentes (botones, ventanas, layouts, entre otros) y permite la separación entre la lógica y la presentación mediante el uso de archivos FXML.
+
+JavaFX se diseñó como un relevo natural de Java Swing, que había quedado desactualizado en comparación con otras soluciones del mercado. Además de permitir el uso de archivos de presentación basados en XML, incorpora el uso de hojas de estilo CSS para la personalización de la interfaz.
+
+En el desarrollo de este proyecto, JavaFX ha permitido una correcta separación de la capa de presentación dentro del marco del patrón MVC (Model-View-Controller), además de contribuir a la escalabilidad del proyecto y aportar una imagen visual más atractiva.
 
 
 \clearpage
@@ -125,32 +133,319 @@ La elección de este entorno para el desarrollo del presente proyecto se justifi
 
 \clearpage
 
-\subsection{JavaFX}
 
-JavaFX es una librería estándar de Java, incorporada desde versiones posteriores, que se utiliza para el desarrollo de interfaces gráficas modernas y atractivas. Está basada en componentes (botones, ventanas, layouts, entre otros) y permite la separación entre la lógica y la presentación mediante el uso de archivos FXML.
 
-JavaFX se diseñó como un relevo natural de Java Swing, que había quedado desactualizado en comparación con otras soluciones del mercado. Además de permitir el uso de archivos de presentación basados en XML, incorpora el uso de hojas de estilo CSS para la personalización de la interfaz.
+\subsection{Emulicious}
 
-En el desarrollo de este proyecto, JavaFX ha permitido una correcta separación de la capa de presentación dentro del marco del patrón MVC (Model-View-Controller), además de contribuir a la escalabilidad del proyecto y aportar una imagen visual más atractiva.
+Emulicious es un emulador multiplataforma que permite la ejecución de ROMs de diversas plataformas de 8 bits, aunque su sistema principal objetivo es la Game Boy. Fue desarrollado por Michael Stegmaier en 2013 y, desde entonces, ha recibido actualizaciones periódicas. Además, es un proyecto de código abierto (open source) y cuenta con una comunidad de desarrollo muy activa, con su propio canal en Discord. Está desarrollado íntegramente en Java, lo cual se aprovecha en este proyecto, ya que permite su integración directa en el editor como una biblioteca Java adicional.
+
+Se trata de un emulador con funcionalidades avanzadas orientadas al desarrollo, entre las que destaca la inclusión de un depurador de código ensamblador que permite seguir la evolución de los registros y facilitar la depuración de funcionalidades. Entre sus características se encuentran el resaltado de sintaxis personalizable, el registro de trazas, los puntos de interrupción y los puntos de observación. Además, permite cargar archivos fuente para su visualización directa, evitando así la necesidad de desensamblar la ROM \cite{emulicious_net}.
+
+El hecho de incorporar este conjunto de herramientas específicas para el desarrollo de software hace que se trate de un emulador claramente orientado al desarrollador, en contraposición a otros más enfocados al usuario final, como se puede observar en la siguiente captura.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=12cm]{Emulicious_Debugger.png}
+    \caption{Interfaz del debugger integrado de Emulicious mostrando las herramientas de desarrollo disponibles.}
+    \label{fig:emuliciousDebugger}
+\end{figure}
+
+El listado de plataformas soportadas es el siguiente:
+
+\begin{itemize}
+    \item Nintendo Game Boy
+    \item Nintendo Game Boy Color
+    \item Sega Master System
+    \item Sega Game Gear
+    \item MSX
+\end{itemize}
+
+\clearpage
+
+\subsection{JSpeccy}
+
+JSpeccy es un emulador de ZX Spectrum desarrollado en Java por José Luis Sánchez \cite{jspeccy_org}. Su objetivo principal es reproducir de forma fiel el comportamiento del hardware original, permitiendo la ejecución de software diseñado para este sistema.
+
+Al igual que otras herramientas utilizadas en este proyecto, JSpeccy está desarrollado íntegramente en Java, lo que facilita su integración dentro del entorno del editor como una biblioteca adicional. Esta característica permite ejecutar y probar directamente los programas desarrollados sin necesidad de depender de aplicaciones externas, simplificando el flujo de trabajo.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=12cm]{ConfiguracionJSpeccy.png}
+    \caption{Interfaz de JSpeccy y sus diferentes opciones de configuración.}
+    \label{fig:JSpeccyDebugger}
+\end{figure}
+
+El emulador ofrece soporte para distintos modelos de ZX Spectrum y es compatible con formatos habituales como instantáneas (SNA, Z80) y cintas (TAP, TZX), lo que permite cargar y ejecutar tanto programas como juegos de forma sencilla. Además, incluye soporte para periféricos como el joystick Kempston, ampliando las posibilidades de interacción con el software emulado.
+
+JSpeccy está concebido principalmente como una herramienta de ejecución y validación del software desarrollado, más que como un entorno avanzado de depuración. No obstante, su fidelidad en la emulación y su integración en Java lo convierten en una opción adecuada dentro del flujo de desarrollo planteado en este proyecto.
+
+\clearpage
 
 \section{Descripción del modelo}
+
+En esta sección se describen los requisitos del sistema, entendidos como el conjunto de funcionalidades y restricciones que debe cumplir el entorno de desarrollo propuesto.
+
+Dichos requisitos se presentan desde un punto de vista externo, centrado en el usuario, sin entrar en detalles de implementación interna.
+
+Se distinguen dos tipos de requisitos:
+
+\begin{itemize}
+    \item Requisitos funcionales (RF), que describen las capacidades y servicios que ofrece el sistema.
+    \item Requisitos no funcionales (RNF), que definen atributos de calidad y restricciones del sistema, como el rendimiento, la usabilidad o la portabilidad.
+\end{itemize}
+
 \subsection{Requisitos}
+
+A continuación, se presenta el listado de requisitos identificados para el sistema.
+
 \subsubsection{Listado de requisitos}
+
+\textbf{Requisitos funcionales}
+\begin{itemize}
+    \item RF-01: El sistema deberá permitir la creación de nuevos proyectos.
+    \item RF-02: El sistema deberá permitir abrir proyectos existentes.
+    \item RF-03: El sistema deberá permitir guardar proyectos.
+    \item RF-04: El sistema deberá permitir la creación, edición y eliminación de archivos de código.
+    \item RF-05: El sistema deberá permitir compilar proyectos utilizando diferentes toolchains (GBDK, z88dk).
+    \item RF-06: El sistema deberá mostrar los errores de compilación al usuario.
+    \item RF-07: El sistema deberá permitir ejecutar el programa compilado en un emulador.
+    \item RF-08: El sistema deberá permitir la configuración de rutas de compiladores y emuladores.
+    \item RF-09: El sistema deberá soportar la instalación de plugins.
+    \item RF-10: El sistema deberá permitir la gestión (activar/desactivar) de plugins.
+\end{itemize}
+
+\clearpage
+
+\textbf{Requisitos no funcionales}
+\begin{itemize}
+    \item RNF-01: El sistema deberá ser multiplataforma (Windows principalmente).
+    \item RNF-02: La interfaz deberá ser intuitiva y fácil de usar.
+    \item RNF-03: El sistema deberá responder a las acciones del usuario en menos de 1 segundo en condiciones normales.
+    \item RNF-04: El sistema deberá permitir la extensión mediante plugins sin modificar el núcleo.
+    \item RNF-05: El sistema deberá estar desarrollado en Java.
+\end{itemize}
+
 \subsection{Casos de uso}
 
-Crear proyecto
-Abrir proyecto
-Editar código
-Guardar archivo
-Compilar proyecto
-Ejecutar/validar compilación
-Seleccionar compilador
-Ver resultados
+Los casos de uso describen las interacciones entre los actores y el sistema, representando de forma clara cómo se utilizan las funcionalidades definidas en los requisitos. Permiten modelar el comportamiento del sistema desde el punto de vista del usuario, mostrando los distintos escenarios de uso.
 
+En este proyecto, el actor principal es el usuario desarrollador, que utiliza el entorno para crear, editar, compilar y ejecutar programas para sistemas de 8 bits.
+
+A continuación, se describen los principales casos de uso identificados:
+
+\begin{itemize}
+    \item \textbf{CU-01: Crear proyecto} - El usuario crea un nuevo proyecto especificando su nombre y ubicación en el sistema de archivos.
+    
+    \item \textbf{CU-02: Abrir proyecto} - El usuario selecciona un proyecto existente para cargarlo en el entorno de desarrollo.
+        
+    \item \textbf{CU-03: Guardar proyecto} - El usuario guarda los cambios realizados en el proyecto actual.
+    
+    \item \textbf{CU-04: Gestionar archivos de código} - El usuario puede crear, editar y eliminar archivos de código fuente dentro del proyecto.
+
+    \item \textbf{CU-05: Compilar proyecto} - El usuario ejecuta el proceso de compilación utilizando una toolchain seleccionada (GBDK o z88dk).
+    
+    \item \textbf{CU-06: Visualizar errores de compilación} - El sistema muestra los errores generados durante la compilación, permitiendo al usuario corregirlos.
+    
+    \item \textbf{CU-07: Ejecutar programa en emulador} - El usuario ejecuta el programa compilado en un emulador integrado o externo.
+    
+    \item \textbf{CU-08: Configurar entorno} - El usuario define las rutas de compiladores y emuladores necesarios para el funcionamiento del sistema.
+    
+    \item \textbf{CU-09: Gestionar plugins} - El usuario instala, activa o desactiva plugins para extender la funcionalidad del entorno.
+\end{itemize}
+
+\clearpage
 
 \subsubsection{Diagrama de casos de uso}
-\subsubsection{Casos de uso}
+
+Los diagramas de casos de uso permiten representar de manera visual las interacciones entre los actores y el sistema, facilitando la comprensión de los distintos escenarios de uso. A través de estos diagramas, es posible observar de un vistazo qué funcionalidades ofrece el sistema y cómo se relacionan con los usuarios.
+
+En este proyecto, el actor principal es el usuario desarrollador, que realiza acciones sobre el entorno de desarrollo para crear, gestionar y ejecutar proyectos de software.
+
+El diagrama principal de casos de uso incluye los siguientes elementos:
+
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Casos de uso principales:}
+    \begin{itemize}
+        \item Crear proyecto
+        \item Abrir proyecto
+        \item Guardar proyecto
+        \item Gestionar archivos de código
+        \item Compilar proyecto
+        \item Visualizar errores de compilación
+        \item Ejecutar programa en emulador
+        \item Configurar entorno
+        \item Gestionar plugins
+    \end{itemize}
+\end{itemize}
+
+\clearpage
+
+A continuación se presenta el diagrama UML correspondiente, donde se representan los casos de uso y su relación con el actor:
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=12cm]{Umls/casos_uso.png}
+    \caption{Diagrama de casos de uso del sistema de desarrollo IDE.}
+    \label{fig:casosDeUso}
+\end{figure}
+
+\clearpage
+
+\subsection{Casos de uso}
+
+Los casos de uso permiten modelar las interacciones entre los actores y el sistema, mostrando cómo se utilizan las funcionalidades definidas en los requisitos. Cada caso de uso describe un escenario específico en el que el usuario interactúa con el sistema, desde el inicio hasta el resultado esperado.
+
+El actor principal es el \textbf{usuario desarrollador}, que utiliza el entorno para crear, editar, compilar y ejecutar programas para sistemas de 8 bits. A continuación se describen los principales casos de uso identificados:
+
+\subsubsection*{CU-01: Crear proyecto}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Precondición:} Ningún proyecto abierto o el usuario desea iniciar un nuevo proyecto
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario selecciona la opción ``Nuevo proyecto''.
+            \item El sistema solicita nombre y ubicación del proyecto.
+            \item El usuario introduce los datos y confirma.
+            \item El sistema crea el proyecto y lo abre en el entorno.
+        \end{enumerate}
+    \item \textbf{Postcondición:} Proyecto creado y listo para añadir archivos de código.
+\end{itemize}
+
+\subsubsection*{CU-02: Abrir proyecto}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Precondición:} Existen proyectos previamente guardados
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario selecciona ``Abrir proyecto''.
+            \item El sistema muestra un selector de proyectos disponibles.
+            \item El usuario selecciona un proyecto y confirma.
+            \item El sistema carga el proyecto en el entorno.
+        \end{enumerate}
+    \item \textbf{Postcondición:} Proyecto cargado y listo para edición o compilación.
+\end{itemize}
+
+\clearpage
+
+\subsubsection*{CU-03: Guardar proyecto}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario selecciona ``Guardar proyecto''.
+            \item El sistema guarda todos los archivos y configuraciones del proyecto.
+        \end{enumerate}
+    \item \textbf{Postcondición:} Cambios del proyecto guardados de manera segura.
+\end{itemize}
+
+\subsubsection*{CU-04: Gestionar archivos de código}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario crea, edita o elimina archivos de código dentro del proyecto.
+            \item El sistema refleja los cambios en la estructura del proyecto.
+        \end{enumerate}
+    \item \textbf{Postcondición:} Archivos actualizados correctamente.
+\end{itemize}
+
+\subsubsection*{CU-05: Compilar proyecto}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Precondición:} El proyecto contiene archivos de código válidos
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario selecciona la opción ``Compilar''.
+            \item El sistema utiliza la toolchain configurada para generar el ejecutable.
+            \item El sistema muestra los resultados de la compilación (errores o éxito).
+        \end{enumerate}
+    \item \textbf{Postcondición:} Archivo ejecutable generado si no existen errores.
+\end{itemize}
+
+\subsubsection*{CU-06: Visualizar errores de compilación}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item Tras la compilación, el sistema muestra los errores encontrados.
+            \item El usuario analiza los errores y realiza correcciones en el código.
+        \end{enumerate}
+    \item \textbf{Postcondición:} El usuario dispone de la información necesaria para corregir errores.
+\end{itemize}
+
+\subsubsection*{CU-07: Ejecutar programa en emulador}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario selecciona ``Ejecutar en emulador''.
+            \item El sistema ejecuta el programa compilado en Emulicious o JSpeccy según la configuración.
+        \end{enumerate}
+    \item \textbf{Postcondición:} Programa ejecutado y comportamiento observable por el usuario.
+\end{itemize}
+
+\subsubsection*{CU-08: Configurar entorno}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario accede a la configuración del sistema.
+            \item Define rutas de compiladores y emuladores.
+        \end{enumerate}
+    \item \textbf{Postcondición:} Sistema preparado para compilar y ejecutar programas correctamente.
+\end{itemize}
+
+\subsubsection*{CU-09: Gestionar plugins}
+\begin{itemize}
+    \item \textbf{Actor:} Usuario desarrollador
+    \item \textbf{Flujo principal:}
+        \begin{enumerate}
+            \item El usuario instala, activa o desactiva plugins.
+            \item El sistema aplica los cambios de manera inmediata.
+        \end{enumerate}
+    \item \textbf{Postcondición:} Plugins activos o desactivados según la decisión del usuario.
+\end{itemize}
+
+\clearpage
+
 \subsection{Diagrama de estados}
+
+El diagrama de estados describe los distintos estados por los que puede pasar el sistema durante su ejecución, así como las transiciones entre dichos estados en función de las acciones del usuario o de eventos internos.
+
+En este caso, se modela el comportamiento del entorno de desarrollo en relación con la gestión de proyectos, desde su creación o apertura hasta su compilación y ejecución.
+
+El sistema comienza en un estado inicial en el que no hay ningún proyecto cargado. A partir de ahí, el usuario puede crear o abrir un proyecto, pasando al estado de proyecto cargado. Desde este estado, el usuario puede editar el código, compilar el proyecto o cerrar el mismo.
+
+Durante el proceso de compilación, el sistema puede transitar a un estado de error de compilación si se detectan fallos, o a un estado de compilación correcta en caso de éxito. En este último caso, el usuario puede ejecutar el programa en un emulador.
+
+Finalmente, el sistema puede volver a estados anteriores en función de las acciones del usuario, como la corrección de errores o el cierre del proyecto.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.7\textwidth]{diagrama_estados.png}
+    \caption{Diagrama de estados del entorno de desarrollo.}
+    \label{fig:diagrama_estados}
+\end{figure}
+
+\clearpage
+
 \subsection{Diagrama de clases}
+
+El diagrama de clases representa la estructura estática del sistema, mostrando las clases principales, sus atributos, métodos y las relaciones entre ellas.
+
+En este proyecto, se ha diseñado un modelo orientado a objetos que refleja los distintos componentes del entorno de desarrollo. La clase principal es el IDE, que actúa como núcleo del sistema y coordina las operaciones principales, como la gestión de proyectos, la compilación y la ejecución.
+
+El sistema se organiza en torno a la clase Proyecto, que contiene los archivos de código fuente. Para la compilación y ejecución, se utilizan las clases Compilador y Emulador, respectivamente. Además, se incluye un sistema de extensión mediante plugins, gestionado por la clase GestorPlugins.
+
+Por último, la clase Configuracion permite almacenar los parámetros necesarios para el funcionamiento del sistema, como las rutas de compiladores y emuladores.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{diagrama_clases.png}
+    \caption{Diagrama de clases del sistema.}
+    \label{fig:diagrama_clases}
+\end{figure}
+
 
 \end{document}

@@ -1,0 +1,24 @@
+@startuml
+title Diagrama de Estados - IDE de 8 bits
+
+[*] --> SinProyecto
+
+SinProyecto --> ProyectoCargado : Crear/Abrir proyecto
+
+ProyectoCargado --> Editando : Modificar archivos
+Editando --> ProyectoCargado : Guardar cambios
+
+ProyectoCargado --> Compilando : Compilar
+Editando --> Compilando : Compilar
+
+Compilando --> ErrorCompilacion : Error
+Compilando --> CompiladoOK : Éxito
+
+ErrorCompilacion --> Editando : Corregir errores
+
+CompiladoOK --> Ejecutando : Ejecutar en emulador
+Ejecutando --> ProyectoCargado : Finalizar ejecución
+
+ProyectoCargado --> SinProyecto : Cerrar proyecto
+
+@enduml

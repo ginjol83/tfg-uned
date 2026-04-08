@@ -1,0 +1,54 @@
+@startuml
+title Diagrama de Clases - IDE de 8 bits
+
+class IDE {
+  +abrirProyecto()
+  +guardarProyecto()
+  +compilar()
+  +ejecutar()
+}
+
+class Proyecto {
+  -nombre : String
+  -ruta : String
+  +guardar()
+}
+
+class ArchivoCodigo {
+  -nombre : String
+  -contenido : String
+  +editar()
+}
+
+class Compilador {
+  +compilar(proyecto)
+}
+
+class Emulador {
+  +ejecutar(rom)
+}
+
+class Plugin {
+  +activar()
+  +desactivar()
+}
+
+class GestorPlugins {
+  +cargarPlugin()
+  +activarPlugin()
+}
+
+class Configuracion {
+  -rutaCompilador
+  -rutaEmulador
+}
+
+IDE --> Proyecto
+Proyecto --> ArchivoCodigo
+IDE --> Compilador
+IDE --> Emulador
+IDE --> GestorPlugins
+GestorPlugins --> Plugin
+IDE --> Configuracion
+
+@enduml

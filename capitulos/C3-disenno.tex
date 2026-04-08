@@ -1,0 +1,129 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Diseño}
+\label{C:disenno}
+
+
+\section{Diseño del sistema}
+
+\subsection{Arquitectura}
+
+\subsubsection{Modelo}
+\subsubsection{Vista}
+\subsubsection{Controlador}
+
+\subsection{Diseño de vistas}
+
+
+\clearpage
+
+\subsubsection{Configuración}
+
+La pantalla de configuración es una de las pantallas más importantes de la aplicación, ya que desde esta pantalla controlamos todos los aspectos personalizables de la aplicación, como el aspecto, idioma o incluso los parámetros para el compilador.
+
+Con el motivo de la multifuncionalidad de esta vista, se ha diseñado con un sistema de pestañas y sub-pestañas, en el que cada pestaña es un aspecto de la aplicación, básicamente lo dividiríamos en tres pestañas principales diferenciadas: idioma, compilador y plugins.
+
+\paragraph{Configuración de idioma}
+
+La configuración de idioma permite al usuario seleccionar el idioma de la interfaz de la aplicación, ofreciendo soporte multiidioma para una mejor experiencia de usuario.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Config_idioma.png}
+    \caption{Diálogo de configuración de idioma.}
+    \label{fig:config_idioma}
+\end{figure}
+
+\clearpage
+
+\paragraph{Configuración de compiladores}
+
+El sistema permite configurar diferentes toolchains de compilación según el target de desarrollo. Se incluyen configuraciones específicas para GBDK-2020 y Z88DK.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Config_Compilador_GBDK.png}
+    \caption{Diálogo de configuración del compilador GBDK-2020.}
+    \label{fig:config_gbdk}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Config_Compilador_z88dk.png}
+    \caption{Diálogo de configuración del compilador Z88DK.}
+    \label{fig:config_z88dk}
+\end{figure}
+
+\paragraph{Configuración de plugins}
+
+La gestión de plugins permite instalar, activar, desactivar y configurar extensiones del sistema, proporcionando flexibilidad y extensibilidad a la aplicación.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Config_plugins.png}
+    \caption{Diálogo de configuración de plugins.}
+    \label{fig:config_plugins}
+\end{figure}
+
+\subsubsection{Diálogos auxiliares}
+
+El sistema incluye diversos diálogos auxiliares que facilitan la interacción del usuario con la aplicación.
+
+\paragraph{Creación de nuevos proyectos}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Nuevo_proyecto.png}
+    \caption{Diálogo para la creación de nuevos proyectos.}
+    \label{fig:nuevo_proyecto}
+\end{figure}
+
+\paragraph{Funcionalidades de búsqueda}
+
+El sistema proporciona herramientas de búsqueda tanto en archivos individuales como a nivel de proyecto.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Buscar.png}
+    \caption{Diálogo de búsqueda en archivos.}
+    \label{fig:dialogo_buscar}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Buscar_proyecto.png}
+    \caption{Diálogo de búsqueda a nivel de proyecto.}
+    \label{fig:buscar_proyecto}
+\end{figure}
+
+\paragraph{Navegación de código}
+ 
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Vistas/Dialogo_Ir_Linea.png}
+    \caption{Diálogo para ir a una línea específica.}
+    \label{fig:ir_linea}
+\end{figure}
+
+\subsubsection{Configuración de emuladores}
+
+La aplicación integra emuladores para probar el software desarrollado. La configuración de JSpeccy permite ajustar los parámetros de emulación del ZX Spectrum.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ConfiguracionJSpeccy.png}
+    \caption{Interface de configuración del emulador JSpeccy.}
+    \label{fig:config_jspeccy}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+\end{document}
