@@ -49,6 +49,12 @@
 *.swp
 *.swo
 
+# Documentation folder
+docs/
+
+# Build directory (latexmk output)
+build/
+
 # OS specific files
 .DS_Store
 .DS_Store?
