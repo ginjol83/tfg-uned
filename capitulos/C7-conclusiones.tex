@@ -1,0 +1,49 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Conclusiones y trabajos futuros}
+\label{C:conclusiones}
+
+\section{Conclusiones} 
+
+El presente trabajo ha permitido el diseño y desarrollo de un entorno de desarrollo integrado orientado a la creación de software para sistemas de 8 bits. El resultado obtenido es un prototipo funcional que integra en una única herramienta diferentes fases del proceso de desarrollo, como la edición de código, la compilación mediante toolchains externas y la ejecución en emulador.
+
+Desde una perspectiva crítica, el sistema presenta todavía ciertas limitaciones, especialmente en términos de modularidad, experiencia de usuario y grado de automatización del flujo de desarrollo. Asimismo, la fuerte dependencia de herramientas externas introduce complejidad en la configuración y reduce la portabilidad del entorno. En este sentido, uno de los principales retos ha sido la adaptación de dichas herramientas al entorno desarrollado, así como la gestión de sus dependencias y configuración.
+
+No obstante, el proyecto pone de manifiesto el potencial de este tipo de herramientas en el ámbito del desarrollo para sistemas retro, especialmente como recurso educativo y como ayuda a la preservación histórica del software y hardware de estas plataformas.
+
+Asimismo, se ha podido constatar la importancia de realizar un análisis previo adecuado, definiendo objetivos, requisitos y casos de uso. No obstante, durante la fase de implementación ha sido necesario ajustar diversas decisiones iniciales, lo que pone de relieve el carácter iterativo del desarrollo software.
+
+Por otro lado, el uso de tecnologías como Java y JavaFX ha permitido la construcción de una interfaz gráfica funcional, aunque con margen de mejora en términos de usabilidad y experiencia de usuario.
+
+En conclusión, el proyecto ha cumplido con los objetivos planteados, proporcionando una base sólida sobre la que seguir evolucionando el sistema. Además, ha supuesto una experiencia formativa relevante, especialmente en el ámbito del desarrollo de herramientas software y la integración de sistemas de terceros.
+
+\clearpage
+
+\section{Trabajos futuros}
+
+A pesar de que el prototipo desarrollado cumple con los objetivos principales planteados, se identifican diversas líneas de mejora y ampliación que permitirían incrementar tanto la funcionalidad como la calidad global del sistema.
+
+En lo relativo a la interfaz de usuario, se propone mejorar la experiencia de uso mediante la incorporación de temas visuales —como el modo oscuro—, así como optimizar el diseño siguiendo principios consolidados de usabilidad y accesibilidad.
+
+No obstante, la principal línea de evolución se centra en la modernización de la interfaz. En este sentido, se plantea migrar hacia una solución basada en tecnologías web (HTML y JavaScript), manteniendo la lógica de negocio en Java. Esta arquitectura permitiría conservar la base existente del sistema, al tiempo que se adopta una interfaz más flexible y acorde con los estándares actuales. Asimismo, la aplicación podría seguir distribuyéndose como software de escritorio mediante soluciones como Electron, evitando la dependencia de servicios externos o servidores. Este enfoque facilitaría el desarrollo de una interfaz más moderna, visualmente atractiva y menos limitada que la ofrecida por JavaFX. Como componente central de edición, se propone la integración del editor de código open source Monaco, ampliamente utilizado en herramientas actuales como Visual Studio Code.
+
+En el ámbito funcional, se identifican también las siguientes posibles mejoras y ampliaciones del sistema:
+
+\begin{itemize}
+    \item \textbf{Ampliación de lenguajes soportados:} incorporación de soporte para código ensamblador, incluyendo resaltado de sintaxis y procesos de compilación.
+    \item \textbf{Mejoras en el editor:} implementación de funcionalidades avanzadas como renombrado de archivos, búsqueda y reemplazo (\lstinline|replace|) y visor integrado de archivos \lstinline|.md|.
+    \item \textbf{Gestión de proyectos:} generación de archivos de configuración de \lstinline|workspace|, así como restauración del estado previo al reabrir un proyecto (archivos y pestañas abiertas).
+    \item \textbf{Productividad e historial:} incorporación de acceso rápido a archivos y proyectos recientes para mejorar el flujo de trabajo.
+    \item \textbf{Integración de herramientas externas:} inclusión de un editor de tiles orientado al desarrollo gráfico en sistemas de 8 bits.
+    \item \textbf{Control de versiones:} integración con sistemas como \lstinline|Git|, permitiendo la gestión del código fuente desde el propio entorno.
+    \item \textbf{Sistema de registro:} implementación de un sistema de logs configurable que permita almacenar la salida de la consola en archivos de texto para su posterior análisis.
+    \item \textbf{Internacionalización:} ampliación del soporte de idiomas de la interfaz, incluyendo francés, alemán e italiano.
+    \item \textbf{Ampliación de plataformas objetivo:} extensión del soporte a otros sistemas clásicos de 8 bits, como NES, Commodore 64, Atari XE o Master System.
+\end{itemize}
+
+Por último, resulta de interés profundizar en la integración con emuladores, permitiendo una comunicación más directa que facilite tareas como la carga automática de programas o la monitorización de su ejecución en tiempo real.
+
+En conjunto, estas líneas de trabajo permitirían evolucionar el proyecto desde un prototipo funcional hacia una herramienta más completa, robusta y versátil, orientada tanto a entornos educativos como al desarrollo real de software para sistemas retro.
+
+\end{document}

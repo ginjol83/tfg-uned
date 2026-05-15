@@ -1,0 +1,409 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Pruebas}
+\label{C:pruebas}
+
+\section{Introducción}
+
+A lo largo del siguiente capítulo se presenta la estrategia de pruebas implementada para validar el correcto funcionamiento del IDE. Las pruebas nos permiten verificar que el sistema cumple con los requisitos especificados y detectar posibles errores.
+
+Para este proyecto se han definido dos tipos principales de pruebas:
+
+\begin{itemize}
+\item \textbf{Pruebas unitarias}: Validan el comportamiento de componentes individuales del sistema de forma aislada, se corresponderia a pruebas de ``caja blanca'', es decir, se centran en la estructura interna del código.
+\item \textbf{Pruebas funcionales}: Verifican que las funcionalidades del sistema cumplan con los requisitos establecidos desde la perspectiva del usuario final, este conjunto de pruebas cubririan las llamadas pruebas de ``caja negra'', enfocándose en la entrada y salida del sistema sin considerar su implementación interna.
+\end{itemize}
+
+La metodología de pruebas seguida se basa en los principios de testing orientado a comportamiento (BDD), donde cada caso de prueba valida un escenario específico de uso real del IDE. 
+ 
+Según John Ferguson Smart \cite{smart2014bdd}, el desarrollo dirigido por comportamiento (BDD) es un conjunto de prácticas de ingeniería de software que buscan mejorar la colaboración entre los participantes del proyecto mediante el uso de un lenguaje común y ejemplos concretos que describen el comportamiento esperado del sistema.
+
+El objetivo principal es garantizar que este IDE, proporciona una experiencia de desarrollo estable y confiable para programadores que trabajan con sistemas de 8 bits, validando funcionalidades críticas como la compilación, ejecución en emuladores, gestión de proyectos y sistema de plugins.
+
+\clearpage
+
+\section{Tipos de prueba} 
+
+\subsection{Unitarias}
+    
+Las pruebas unitarias se centran en validar el comportamiento de clases y métodos individuales del sistema de forma aislada. Para este proyecto se han desarrollado suites de pruebas unitarias utilizando el framework JUnit 5, que permiten verificar tanto la correcta implementación de algoritmos como las reglas de negocio presentes en las clases de servicio, así como el comportamiento del sistema ante entradas inválidas o condiciones excepcionales.
+
+Además, se han implementado pruebas orientadas a asegurar la correcta conversión y procesamiento de información entre diferentes formatos. Para garantizar el aislamiento de los componentes, se ha recurrido al uso de mocks, lo que permite simular dependencias externas y validar de forma controlada las interacciones entre los distintos módulos del sistema.
+    
+Las pruebas unitarias implementadas cubren cinco componentes críticos:
+    \begin{itemize}
+    \item \lstinline|CompilationDiagnosticParserService|: Parseo de salida de compiladores.
+    \item \lstinline|PluginApplicationService|: Gestión de plugins del sistema.
+    \item \lstinline|ProjectSearchService|: Búsqueda de texto en proyectos.
+    \item \lstinline|PropertiesConfigRepository|: Persistencia de configuración.
+    \item \lstinline|TextSearchService|: Búsqueda de texto en archivos.
+\end{itemize}
+          
+\subsection{Funcionales}
+    
+Las pruebas funcionales validan que el sistema cumple con los requisitos funcionales requeridos durante la fase de análisis desde la perspectiva del usuario final. Estas pruebas se ejecutan sobre la interfaz gráfica completa del IDE y verifican los flujos de trabajo completos.
+    
+Las pruebas funcionales presentan una serie de características clave que las hacen especialmente adecuadas para validar el comportamiento del sistema desde la perspectiva del usuario. En primer lugar, están orientadas al usuario, ya que simulan acciones reales que realizaría un desarrollador al interactuar con el IDE. Además, adoptan un enfoque end-to-end, permitiendo probar flujos completos desde la entrada del usuario hasta la obtención del resultado final. Estas pruebas están directamente basadas en los requisitos del sistema, de modo que cada caso de prueba se corresponde con un requisito funcional específico. Por último, se caracterizan por ser reproducibles, ya que definen prerrequisitos claros y pasos detallados que garantizan la consistencia en su ejecución.
+    
+\clearpage
+
+\textbf{Áreas funcionales cubiertas:} 
+
+\begin{itemize}
+    \item \textbf{Gestión de proyectos}: Creación, apertura y guardado de proyectos.
+    \item \textbf{Edición de código}: Creación, modificación y eliminación de archivos fuente.
+    \item \textbf{Compilación}: Uso de diferentes toolchains (GBDK, Z88DK) y gestión de errores.
+    \item \textbf{Ejecución}: Lanzamiento de programas en emuladores configurados.
+    \item \textbf{Configuración}: Gestión de rutas de herramientas externas.
+    \item \textbf{Plugins}: Instalación y gestión de extensiones del IDE.
+\end{itemize}
+    
+Cada caso de prueba funcional incluye descripción, prerrequisitos, pasos detallados, resultado esperado y resultado obtenido, siguiendo metodologías estándar de testing de software.
+
+\section{Casos de prueba funcionales}
+
+Esta sección presenta los casos de prueba diseñados para validar que el IDE, cumple con todos los requisitos funcionales establecidos en la fase de análisis. Cada caso de prueba se corresponde directamente con uno o más requisitos funcionales y ha sido diseñado para simular escenarios reales de uso del IDE.
+
+Los casos de prueba siguen una estructura estandarizada que incluye:
+\begin{itemize}
+\item \textbf{Identificador}: Código único para referenciar el caso (P01, P02, etc.).
+\item \textbf{Descripción}: Resumen conciso de la funcionalidad a probar.
+\item \textbf{Prerrequisitos}: Condiciones que deben cumplirse antes de ejecutar la prueba.
+\item \textbf{Pasos}: Secuencia detallada de acciones a realizar.
+\item \textbf{Resultado esperado}: Comportamiento que debe mostrar el sistema.
+\item \textbf{Resultado de prueba}: Documentación del resultado real obtenido.
+\end{itemize}
+
+La trazabilidad entre casos de prueba y requisitos funcionales garantiza que todas las funcionalidades críticas del IDE han sido validadas adecuadamente.
+
+\clearpage
+
+\subsection{Listado de casos de prueba funcionales}
+\begin{itemize}
+    %% Aquí se listan los casos de prueba asociados a sus correspondientes requisitos funcionales
+    \item \textbf{Prueba 1 (RF-01)}: Verifica que el sistema permite la creación de nuevos proyectos.
+    \item \textbf{Prueba 2 (RF-02)}: Verifica que el sistema permite abrir proyectos existentes.
+    \item \textbf{Prueba 3 (RF-03)}: Verifica que el sistema permite guardar proyectos correctamente.
+    \item \textbf{Prueba 4 (RF-04)}: Verifica que el sistema permite la creación, edición y eliminación de archivos de código.
+    \item \textbf{Prueba 5 (RF-05)}: Verifica que el sistema permite compilar proyectos utilizando diferentes toolchains (GBDK y Z88DK).
+    \item \textbf{Prueba 6 (RF-06)}: Verifica que el sistema muestra adecuadamente los errores de compilación al usuario.
+    \item \textbf{Prueba 7 (RF-07)}: Verifica que el sistema permite ejecutar el programa compilado en un emulador.
+    \item \textbf{Prueba 8 (RF-08)}: Verifica que el sistema permite la configuración de rutas de compiladores o toolchains.
+    \item \textbf{Prueba 9 (RF-09)}: Verifica que el sistema soporta la instalación de plugins.
+    \item \textbf{Prueba 10 (RF-10)}: Verifica que el sistema permite la gestión de plugins (activación y desactivación).
+\end{itemize}
+
+\clearpage
+
+\subsection{Casos de prueba al detalle}
+
+\subsubsection{Creación de nuevos proyectos [P01]}
+
+\textbf{Descripción:} Crear un nuevo proyecto de desarrollo para máquinas de 8 bits.
+
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Tener la aplicación instalada y funcionando.
+\item Disponer de permisos de escritura en el directorio donde se creará el proyecto.
+\end{itemize}
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Abrir la aplicación.
+\item Ir al menú \lstinline|Archivo| $\rightarrow$ \lstinline|Nuevo Proyecto|.
+\item Seleccionar la carpeta de destino para el proyecto.
+\item Introducir el nombre del proyecto en el campo correspondiente.
+\item Seleccionar la plantilla de proyecto deseada (por ejemplo, la plantilla ZX Spectrum - básico).
+\item Pulsar el botón \lstinline|Aceptar|.
+\end{enumerate}
+
+\textbf{Resultado esperado:} El sistema crea un nuevo proyecto con la estructura de carpetas y archivos básicos según la plantilla seleccionada. Se abre automáticamente en el editor mostrando el archivo principal.
+
+\textbf{Resultado prueba:} El proyecto se ha creado correctamente con todos los archivos de plantilla, la estructura de carpetas es la esperada y el archivo \lstinline|main.c| se abre automáticamente en el editor.
+
+\clearpage
+
+\subsubsection{Apertura de proyectos existentes [P02]}
+    
+\textbf{Descripción:} Abrir un proyecto previamente creado desde el sistema de archivos para continuar el desarrollo.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Disponer de un proyecto ya creado en el sistema de archivos.
+\item Tener la aplicación funcionando.
+\end{itemize}
+
+\textbf{Pasos:} 
+\begin{enumerate}
+\item Abrir la aplicación.
+\item Ir al menú \lstinline|Archivo| $\rightarrow$ \lstinline|Abrir Proyecto|.
+\item Navegar hasta la carpeta que contiene el proyecto.
+\item Seleccionar la carpeta raíz del proyecto.
+\item Pulsar el botón \lstinline|Seleccionar carpeta|.
+\end{enumerate}
+
+\textbf{Resultado esperado:} El proyecto se carga completamente mostrando la estructura de archivos en el explorador de proyecto.
+
+\textbf{Resultado prueba:} El proyecto se abre correctamente y se cargan todos los archivos en el explorador.
+
+\subsubsection{Guardado de proyectos [P03]}
+
+\textbf{Descripción:} Guardar los cambios realizados en los archivos del proyecto actual.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Tener un proyecto abierto con modificaciones pendientes.
+\item Disponer de permisos de escritura en la carpeta del proyecto.
+\end{itemize}
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Realizar modificaciones en uno o varios archivos del proyecto.
+\item Usar el atajo \lstinline|Ctrl+S| o ir a \lstinline|Archivo| $\rightarrow$ \lstinline|Guardar|.
+\item Para guardar todos los archivos modificados: \lstinline|Ctrl+Shift+S| o \lstinline|Archivo| $\rightarrow$ \lstinline|Guardar Todo|.
+\end{enumerate}
+
+\textbf{Resultado esperado:} Los cambios se persisten en disco y desaparecen los indicadores de archivo modificado (asterisco en la pestaña).
+
+\textbf{Resultado prueba:} Todos los archivos se guardan correctamente y se eliminan las marcas de modificación pendiente.
+
+\subsubsection{Gestión de archivos de código [P04]}
+
+\textbf{Descripción:} Crear, editar y eliminar archivos de código fuente dentro del proyecto.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Tener un proyecto abierto.
+\item Permisos de lectura/escritura en la carpeta del proyecto.
+\end{itemize}
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Crear archivo: clic derecho en explorador $\rightarrow$ \lstinline|Nuevo Archivo| $\rightarrow$ introducir nombre con extensión \lstinline|.c| o \lstinline|.h|.
+\item Editar: doble clic en archivo para abrirlo en el editor y realizar modificaciones.
+\item Eliminar: clic derecho en archivo $\rightarrow$ \lstinline|Eliminar| $\rightarrow$ confirmar acción.
+\end{enumerate}
+
+\textbf{Resultado esperado:} Los archivos se crean, editan y eliminan correctamente. El explorador se actualiza reflejando los cambios inmediatamente.
+
+\textbf{Resultado prueba:} Todas las operaciones de gestión de archivos funcionan correctamente y se reflejan tanto en el explorador como en el sistema de archivos.
+
+\subsubsection{Compilación con diferentes toolchains [P05]}
+
+\textbf{Descripción:} Compilar el proyecto utilizando diferentes herramientas de compilación (GBDK, z88dk).
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Proyecto con código fuente válido.
+\item Toolchains configurados en el sistema (GBDK y/o z88dk).
+\item Rutas de compiladores configuradas en la aplicación.
+\end{itemize}
+ 
+\clearpage
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Abrir la configuración del proyecto o aplicación.
+\item Seleccionar el toolchain deseado (GBDK para Game Boy, z88dk para ZX Spectrum, etc.).
+\item Pulsar \lstinline|F7| o ir a \lstinline|Compilar| $\rightarrow$ \lstinline|Construir Proyecto|.
+\item Revisar la salida en la consola de compilación.
+\end{enumerate}
+
+\textbf{Resultado esperado:} El proyecto se compila exitosamente generando el archivo ejecutable para la plataforma objetivo.
+
+\textbf{Resultado prueba:} La compilación se completa sin errores y se genera el archivo binario correspondiente (\lstinline|.gb|, \lstinline|.rom|, etc.).
+
+\subsubsection{Visualización de errores de compilación [P06]}
+
+\textbf{Descripción:} Mostrar claramente los errores y warnings de compilación al usuario para facilitar la depuración.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Proyecto con código que contiene errores sintácticos.
+\item Toolchain configurado correctamente.
+\end{itemize}
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Introducir errores intencionados en el código (sintaxis incorrecta, variables no declaradas).
+\item Iniciar la compilación mediante \lstinline|F7|.
+\item Observar la consola de salida y los indicadores en el editor.
+\item Hacer clic en un error para navegar a la línea correspondiente.
+\end{enumerate}
+
+\textbf{Resultado esperado:} Los errores se muestran claramente con número de línea, archivo y descripción. Al hacer clic navega automáticamente al error.
+
+\textbf{Resultado prueba:} Todos los errores se visualizan correctamente con información detallada y la navegación automática funciona perfectamente.
+
+\subsubsection{Ejecución en emulador [P07]}
+
+\textbf{Descripción:} Ejecutar el programa compilado directamente en un emulador desde la aplicación.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Proyecto compilado exitosamente.
+\item Emulador configurado para la plataforma objetivo.
+\item Archivo ejecutable generado (.gb, .rom, etc.).
+\end{itemize}
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Compilar el proyecto exitosamente.
+\item Pulsar \lstinline|F6| o ir al menu \lstinline|Proyecto| $\rightarrow$ \lstinline|Ejecutar|.
+\item Verificar que el emulador se abre con el programa cargado.
+\end{enumerate}
+
+\textbf{Resultado esperado:} El emulador se abre automáticamente y ejecuta el programa compilado mostrando el resultado en pantalla.
+
+\textbf{Resultado prueba:} El emulador se inicia correctamente, carga el programa y permite su ejecución e interacción normal.
+
+
+\subsubsection{Configuración de rutas de herramientas [P08]}
+
+\textbf{Descripción:} Configurar las rutas de instalación de compiladores y emuladores en la aplicación.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Tener instalados los compiladores y emuladores en el sistema.
+\item Conocer las rutas de instalación de las herramientas.
+\end{itemize}
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Ir a \lstinline|Archivo| $\rightarrow$ \lstinline|Configuración| y acceder a la sección de \lstinline|Compilar|.
+\item Introducir o seleccionar las rutas de las carpetas bin de GBDK O Z88DK.
+\item Aplicar los cambios y cerrar la configuración.
+\item Probar la compilación para verificar la configuración.
+\end{enumerate}
+
+\textbf{Resultado esperado:} Las rutas se guardan correctamente y las herramientas se pueden utilizar desde la aplicación.
+
+\textbf{Resultado prueba:} La configuración se almacena persistentemente y todas las herramientas configuradas funcionan correctamente.
+
+
+
+
+\subsubsection{Instalación de plugins [P09]}
+
+\textbf{Descripción:} Instalar nuevos plugins para extender la funcionalidad de la aplicación.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Disponer de un archivo JAR de plugin válido.
+\item Permisos de escritura en la carpeta de plugins de la aplicación.
+\end{itemize}
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Ir a \lstinline|Archivo| $\rightarrow$ \lstinline|Configuración| y seleccionar la pestaña \lstinline|Plugins|.
+\item Pulsar el botón \lstinline|Instalar|.
+\item Seleccionar el archivo JAR del plugin desde el sistema de archivos.
+\item Confirmar la instalación en el diálogo.
+\item Reiniciar la aplicación si es necesario.
+\end{enumerate}
+
+\textbf{Resultado esperado:} El plugin se instala correctamente y aparece en la lista de plugins disponibles.
+
+\textbf{Resultado prueba:} El plugin se copia al directorio correspondiente, se registra en el sistema y queda disponible para su activación.
+
+\subsubsection{Gestión de plugins [P10]}
+
+\textbf{Descripción:} Activar, desactivar y gestionar plugins instalados en la aplicación.
+
+\textbf{Prerrequisitos:} 
+\begin{itemize}
+\item Tener al menos un plugin instalado en el sistema.
+\item Acceso a la ventana de gestión de plugins.
+\end{itemize}
+
+\clearpage 
+
+\textbf{Pasos:}
+\begin{enumerate}
+\item Ir a \lstinline|Archivo| $\rightarrow$ \lstinline|Configuración| y seleccionar la pestaña \lstinline|Plugins|.
+\item Seleccionar un plugin de la lista.
+\item Usar los botones \lstinline|Activar|/\lstinline|Desactivar| según el estado deseado.
+\item Aplicar cambios y recargar plugins si es necesario con el botón \lstinline|Refrescar|.
+\item Verificar que la funcionalidad del plugin está disponible o no según el estado.
+\end{enumerate}
+
+\textbf{Resultado esperado:} Los plugins se activan/desactivan correctamente y su funcionalidad se refleja inmediatamente en la aplicación.
+
+\textbf{Resultado prueba:} El sistema de gestión funciona correctamente, los cambios de estado se persisten y la funcionalidad de los plugins responde al estado configurado.
+
+
+\section{Tests unitarios}
+
+Las pruebas unitarias constituyen un elemento fundamental en la validación del sistema desarrollado. Su objetivo principal es garantizar el correcto funcionamiento de las clases de servicio y utilidades de forma aislada, evitando la influencia de dependencias externas como JavaFX o el sistema de archivos. Este enfoque permite detectar errores de forma temprana y asegurar que la lógica de negocio se comporta de manera predecible en distintos escenarios.
+
+En este proyecto, las pruebas se han diseñado siguiendo un enfoque incremental, cubriendo tanto los casos de uso principales como situaciones límite que podrían producir fallos en tiempo de ejecución.
+
+\subsection{CompilationDiagnosticParserServiceTest}
+
+El componente de parseo de diagnósticos de compilación es especialmente crítico, ya que actúa como puente entre la salida textual de los compiladores y su representación estructurada dentro del IDE. Por este motivo, se ha prestado especial atención a validar su robustez frente a distintos formatos de entrada.
+
+Las pruebas desarrolladas verifican, en primer lugar, la correcta extracción de códigos de salida a partir de mensajes generados por el proceso de compilación. Asimismo, se valida el tratamiento del formato estándar de errores utilizado por múltiples compiladores (``archivo:línea: error: mensaje''), asegurando su correcta interpretación.
+
+Adicionalmente, se incluye la validación de formatos específicos, como el empleado por z88dk, lo que permite garantizar la compatibilidad con toolchains concretas. Finalmente, se evalúa la correcta resolución de rutas de archivo y el comportamiento ante entradas inválidas o incompletas, reforzando la fiabilidad del sistema en condiciones adversas.
+
+\subsection{PluginApplicationServiceTest}
+
+La gestión de plugins representa una de las funcionalidades clave del sistema, por lo que su correcta implementación resulta esencial. Las pruebas unitarias asociadas a este componente se centran en validar tanto la persistencia física de los plugins como su gestión lógica dentro de la aplicación.
+
+En este sentido, se comprueba que el sistema sea capaz de crear de forma idempotente el directorio de plugins, evitando errores en ejecuciones repetidas. Asimismo, se valida el proceso de instalación mediante la copia de archivos JAR, asegurando que los artefactos se almacenan correctamente.
+
+Por otro lado, se evalúa el comportamiento del sistema en ausencia de un gestor de plugins, garantizando que no se produzcan fallos inesperados. Finalmente, se verifica la correcta gestión del ciclo de vida de los plugins, incluyendo su habilitación, deshabilitación y recarga dinámica.
+
+\subsection{ProjectSearchServiceTest}
+
+El servicio de búsqueda en el proyecto permite localizar información dentro del conjunto de archivos que lo componen, por lo que su precisión es un aspecto relevante desde el punto de vista de la experiencia de usuario.
+
+Las pruebas desarrolladas validan la capacidad del sistema para localizar términos en distintos archivos, así como su comportamiento ante entradas inválidas, como rutas inexistentes o términos vacíos. Además, se verifica la exactitud de los resultados obtenidos, comprobando tanto las rutas de los archivos como las posiciones concretas en las que se producen las coincidencias.
+
+\subsection{PropertiesConfigRepositoryTest}
+
+La persistencia de la configuración del sistema se realiza mediante archivos \lstinline|.properties|, por lo que resulta necesario garantizar la integridad de la información almacenada.
+
+En este contexto, las pruebas verifican que el sistema gestione adecuadamente la ausencia de archivos de configuración, evitando errores en la carga inicial. Asimismo, se valida el proceso completo de escritura y lectura de datos (round-trip), asegurando que la información se mantiene consistente. Finalmente, se comprueba que las claves y valores se conserven sin alteraciones durante todo el proceso.
+
+\clearpage
+
+\subsection{TextSearchServiceTest}
+
+El servicio de búsqueda de texto en archivos individuales proporciona funcionalidades avanzadas que requieren una validación detallada. Entre ellas, destaca la navegación circular, que permite continuar la búsqueda desde el inicio una vez alcanzado el final del documento.
+
+Las pruebas también cubren la búsqueda direccional, permitiendo desplazarse tanto hacia adelante como hacia atrás, así como la sensibilidad a mayúsculas y minúsculas. Además, se valida el soporte de expresiones regulares, incluyendo el tratamiento de patrones inválidos para evitar errores en tiempo de ejecución.
+
+Por último, se verifica la capacidad del sistema para recuperar todas las coincidencias junto con sus metadatos asociados, lo que resulta fundamental para su correcta integración con la interfaz de usuario.
+
+\section{Cobertura y metodología}
+
+Las pruebas unitarias se han implementado siguiendo las buenas prácticas recomendadas para JUnit 5, con el objetivo de garantizar su mantenibilidad y fiabilidad a largo plazo.
+
+En particular, se ha hecho uso de la anotación \lstinline|@TempDir| para gestionar de forma segura los recursos temporales del sistema de archivos. Asimismo, se han empleado dobles de prueba (mocks y fakes) para aislar los componentes bajo prueba y evitar dependencias externas.
+
+El conjunto de pruebas cubre tanto escenarios nominales como situaciones límite, permitiendo evaluar el comportamiento del sistema en condiciones reales y adversas. Además, se han definido verificaciones explícitas de precondiciones y postcondiciones, y se ha adoptado una nomenclatura descriptiva que facilita la comprensión del propósito de cada caso de prueba.
+
+\clearpage
+
+\subsection{Resultados de los tests unitarios}
+
+Tras la ejecución del conjunto de pruebas unitarias, todos los casos definidos se han superado satisfactoriamente, sin registrarse fallos ni errores inesperados. Este resultado confirma que los componentes validados cumplen con el comportamiento esperado en los escenarios contemplados durante el diseño de las pruebas.
+
+La Figura~\ref{fig:test-results} muestra una captura de la ejecución de los tests en el entorno de desarrollo, donde se puede observar el estado satisfactorio de la suite completa.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=1\textwidth]{tests/resultado_pruebas_unitarias.jpg}
+    \caption{Resultado de la ejecución de las pruebas unitarias}
+    \label{fig:test-results}
+\end{figure}
+
+Además de la validación funcional, estos resultados indican que el sistema presenta un comportamiento estable frente a los distintos casos evaluados, incluyendo tanto escenarios nominales como situaciones límite. No obstante, cabe destacar que la ausencia de fallos en las pruebas no garantiza la inexistencia de errores, sino que el sistema se comporta correctamente bajo las condiciones verificadas.
+
+En conjunto, la batería de pruebas desarrollada proporciona un nivel adecuado de confianza sobre la calidad del software, sirviendo como base para futuras ampliaciones y refactorizaciones del sistema.
+
+\end{document}
+
