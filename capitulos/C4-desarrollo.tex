@@ -1,0 +1,860 @@
+\documentclass[../../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Desarrollo}
+\label{C:desarrollo}
+
+\section{Introducción}
+
+En este capítulo se describe la implementación del sistema desarrollado, detallando las funcionalidades principales del entorno de desarrollo integrado (IDE) para desarrollo de software de 8 bits, así como las decisiones técnicas adoptadas durante su construcción. A diferencia del capítulo anterior, centrado en el diseño, aquí se aborda la materialización de dicho diseño en una aplicación funcional.
+
+El desarrollo se ha realizado utilizando Java para la lógica de la aplicación y JavaFX para la interfaz gráfica, siguiendo el patrón arquitectónico MVC previamente definido. Asimismo, se ha adoptado un enfoque incremental, permitiendo validar progresivamente las distintas funcionalidades del sistema.
+
+El capítulo se dividirá en secciones que abordan aspectos específicos del sistema, incluyendo la gestión de proyectos y archivos, el editor de código, el sistema de compilación, la ejecución en emuladores, el sistema de plugins, la configuración del sistema, las funcionalidades de búsqueda y las decisiones técnicas adoptadas.
+
+Se describirán aspectos clave como la inicialización de la aplicación, como se han implementado algunas clases y las decisiones técnicas adoptadas y las limitaciones encontradas.
+
+También se analizaran las clases implicadas y sus responsabilidades.
+
+\clearpage
+
+\section{Inicialización y arquitectura en ejecución}
+
+El punto de entrada de la aplicación se encuentra en la clase principal \lstinline|MainApp.java| mediante el método \lstinline|start|. Este método es el encargado de inicializar el entorno JavaFX y cargar la interfaz definida mediante archivos FXML como se puede ver en el fragmento de código \ref{lst:codigo_clase_main}. 
+
+\begin{lstlisting}[style=mystyle, caption={Código de la clase principal MainApp.java}, label={lst:codigo_clase_main}]
+    /**
+     * Metodo de inicializacion de la aplicacion.
+     */ 
+    @Override 
+    public void start(Stage primaryStage) throws Exception {
+
+        try {
+            FXMLLoader  loader  = new FXMLLoader(getClass().getResource("/views/MainView.fxml"));
+            Parent      root    = loader.load();
+            Scene       scene   = new Scene(root);
+
+            System.out.println("FXML cargado correctamente");
+
+            primaryStage.setTitle("SamaruC");
+            primaryStage.setScene(scene);
+            primaryStage.setMaximized(true);
+
+            // Inicializar el gestor de plugins (carpeta plugins/ junto al directorio de trabajo)
+            try {
+                // Intentar obtener el controlador para poder pasarle la MenuBar a los plugins
+                Object controller = loader.getController();
+
+                if (controller instanceof com.retroeditor.controller.MainController) {
+                    mainController = (com.retroeditor.controller.MainController) controller;
+                    pluginManager  = new com.retroeditor.plugin.PluginManager(primaryStage, scene, mainController.getMenuBar());
+                } else {
+                    pluginManager  = new com.retroeditor.plugin.PluginManager(primaryStage, scene, null);
+                }
+
+                pluginManager.loadPlugins();
+                pluginManager.enablePlugins();
+
+            } catch (Throwable t) {
+                System.err.println("[Plugin] Failed to initialize PluginManager: " + t.getMessage());
+                t.printStackTrace();
+            }
+
+\end{lstlisting} 
+
+Una vez cargada la interfaz, el método \lstinline|start| se encarga de inicializar el gestor de plugins, cargar los plugins disponibles y habilitarlos. Además, se establece un manejador para el evento de cierre de la ventana principal, que permite realizar tareas de limpieza antes de finalizar la aplicación.
+
+El método \lstinline|initialize| del controller se encarga de configurar el entorno de ejecución, cargando la configuración del usuario, estableciendo el idioma y preparando los componentes necesarios para el funcionamiento del IDE. Este proceso se muestra en el código de la clase \lstinline|MainController.java| como se puede ver en el siguiente fragmento \ref{lst:codigo_clase_main_controller}.
+
+\begin{lstlisting}[style=mystyle, caption={Código de la clase MainController.java}, label={lst:codigo_clase_main_controller}]
+    @FXML
+    public void initialize() {
+        // Cargar configuracion del usuario (incluye gbdk_bin)
+        configModel.applyProperties(configRepository.load(userConfigFile));
+
+        // Leer idioma desde configModel (ya cargado por getDefaultLanguage)
+        String lang     = configModel.getConfigProperty("idioma", "es");
+        Locale locale   = java.util.Locale.forLanguageTag(lang);
+        bundle          = ResourceBundle.getBundle("i18n.MessagesBundle", locale);
+
+        AppLogger.setBundle(bundle);
+
+        // Inicializar modelo, resaltador y vista
+        editorModel         = new EditorModel();
+        syntaxHighlighter   = new SyntaxHighlighter();
+        fxUtils             = new FXUtils();
+
+        // Configurar listener para cambios de idioma en la configuracion
+        configModel.idiomaProperty().addListener((obs, oldV, newV) -> {
+            try {
+                Locale newLocale = java.util.Locale.forLanguageTag(newV != null ? newV : "es");
+                bundle           = ResourceBundle.getBundle("i18n.MessagesBundle", newLocale);
+                AppLogger.setBundle(bundle);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+\end{lstlisting}
+
+\section{Gestión de proyectos y archivos}
+
+El IDE permite la creación, apertura y guardado de proyectos, los cuales se representan como estructuras de directorios en el sistema de archivos. Cada proyecto contiene los ficheros fuente y recursos necesarios para su compilación.
+
+La gestión de proyectos se implementa mediante un modelo que mantiene la estructura jerárquica de archivos y directorios. Este modelo se sincroniza con la interfaz gráfica, permitiendo al usuario navegar por el proyecto a través de un explorador de archivos.
+
+\subsection{Clases implicadas y responsabilidades}
+ 
+\begin{itemize}
+    \item \textbf{MainController:} Coordinador principal. Orquesta proyecto activo, apertura de archivos, cierre de pestañas afectadas y conexión entre UI y servicios.
+    \item \textbf{ProjectExplorerController:} Controlador JavaFX del árbol del proyecto. Gestiona interacción de usuario, menús contextuales y navegación en el árbol.
+    \item \textbf{ProjectExplorerModel:} Capa simple de acceso a sistema de archivos para crear, borrar y recorrer carpetas/archivos.
+    \item \textbf{FileOptionsController:} Controlador especializado en operaciones de archivo del editor: abrir, guardar, guardar como y cerrar.
+    \item \textbf{EditorModel:} Modelo de contenido. Lee, guarda y mantiene en memoria los archivos abiertos, incluyendo detección básica de binarios.
+    \item \textbf{FXUtils:} Utilidades de interfaz y apoyo a flujo de proyecto: creación de proyectos, plantillas, pestañas, estado visual y diálogos auxiliares.
+\end{itemize}
+
+\subsection{Ejemplo de flujo}
+
+A continuación se presenta un ejemplo típico de flujo de la gestión de proyectos, centrado en la creación de un nuevo proyecto. Cuya entrada principal está en MainController.onNuevoProyecto().
+
+
+
+\begin{itemize}
+    \item MainController llama a FXUtils.createNewProject(...).
+    \item FXUtils pide:
+    \begin{itemize}
+        \item Carpeta padre.
+        \item Nombre del proyecto.
+        \item Plantilla.
+        \item Si crear ``README.md'' y ``.gitignore'' .
+    \end{itemize}
+    \item FXUtils.createProjectFromTemplate(...) crea la estructura inicial, normalmente:
+    \begin{itemize}
+        \item ``src/''.
+        \item ``src/main.c''.
+        \item opcionalmente ``README.md''.
+        \item opcionalmente ``.gitignore''.
+    \end{itemize}
+    \item MainController.setProyectoActual(...) establece la carpeta raíz activa.
+    \item Si existe src/main.c, se abre automáticamente en el editor con openFileFromExplorer(...).
+\end{itemize}
+
+\section{Editor de código}
+
+Como se ha descrito con anterioridad, el editor de código es una parte central del IDE, permitiendo a los usuarios escribir y modificar su código fuente de manera eficiente.
+
+Cada archivo abierto se asocia a un modelo que gestiona su contenido y estado (modificado o guardado). El editor incluye funcionalidades básicas como numeración de líneas y resaltado de sintaxis para el lenguaje C.
+
+El sistema detecta cambios en el contenido del archivo y actualiza su estado en consecuencia, permitiendo al usuario identificar fácilmente los documentos pendientes de guardar. La interfaz se actualiza dinámicamente en respuesta a estos cambios.
+
+A nivel de implementación, el editor se apoya en RichTextFX y, en concreto, en CodeArea como componente principal de edición. Encima de ese componente, la aplicación añade controladores de archivo, utilidades de pestañas, búsqueda, resaltado de sintaxis y marcas visuales de diagnóstico.
+
+\subsection{Estructura visual del editor}
+
+La vista principal está definida en src/main/resources/views/MainView.fxml.
+
+Cada pestaña de edición contiene un CodeArea. Ese CodeArea se crea dinámicamente desde el método FXUtils.addTab(...).
+
+\clearpage
+
+\subsection{Resaltado de sintaxis} 
+
+El resaltado de sintaxis se implementa mediante la clase \lstinline|SyntaxHighlighter|, que utiliza expresiones regulares para identificar diferentes elementos del código fuente, como palabras clave, comentarios, cadenas de texto, etc. El resultado de este análisis se mapea a estilos visuales específicos que se aplican al contenido del editor. 
+
+Como se muestra en el fragmento de código \ref{lst:codigo_SyntaxHighlighter}, la clase \lstinline|SyntaxHighlighter| define un patrón de expresión regular que combina diferentes grupos para reconocer los distintos elementos del lenguaje C.
+
+\begin{lstlisting}[style=mystyle, caption={Codigo de la clase SyntaxHighlighter.java}, label={lst:codigo_SyntaxHighlighter}]
+    private static final Pattern PATTERN = Pattern.compile(
+           "(?<PREPROCESSOR>" + PREPROCESSOR_PATTERN + ")"
+         + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+         + "|(?<STRING>" + STRING_PATTERN + ")"
+         + "|(?<CHARACTER>" + CHARACTER_PATTERN + ")"
+         + "|(?<OPERATOR>" + OPERATOR_PATTERN + ")"
+         + "|(?<ZXFUNCTION>" + ZX_FUNCTION_PATTERN + ")"
+         + "|(?<GBDKFUNCTION>" + GBDK_FUNCTION_PATTERN + ")"
+         + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")",
+    Pattern.MULTILINE
+    );
+    assert styleClass != null;
+
+    spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
+        spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
+    spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
+
+    return spansBuilder.create();
+\end{lstlisting}
+
+Después lo mapea mediante un método que asigna estilos a cada grupo reconocido, generando un StyleSpans que se aplica al CodeArea para mostrar el resaltado de sintaxis en tiempo real a medida que el usuario edita el código.
+
+\clearpage
+
+\subsection{Clases implicadas y responsabilidades}
+
+\begin{itemize}
+    \item \textbf{MainController:} Coordina la ventana principal, las pestañas, la apertura real de archivos, la integración con búsqueda y la aplicación de diagnósticos de compilación sobre el editor.
+    \item \textbf{FileOptionsController:} Encapsula el ciclo de abrir, guardar, guardar como y cerrar archivos, reutilizando EditorModel y FXUtils.
+    \item \textbf{EditOptionsController:} Centraliza acciones de edición puras sobre el CodeArea activo.
+    \item \textbf{SearchController:} Gestiona la experiencia de búsqueda en archivo y proyecto y la navegación a coincidencias.
+    \item \textbf{EditorModel:} Es la capa de lectura/escritura de texto y memoria de archivos abiertos. También decide si un archivo parece binario.
+    \item \textbf{SyntaxHighlighter:} Convierte el contenido textual en spans de estilo para RichTextFX. El resaltado está pensado para C retro y Markdown, no para un parser completo del lenguaje.
+    \item \textbf{TextSearchService:} Implementa búsqueda y extracción de fragmentos sobre un string, sin dependencia de UI.
+    \item \textbf{ProjectSearchService:} Recorre el árbol del proyecto y localiza coincidencias en archivos regulares.
+    \item \textbf{FXUtils:} Agrupa gran parte de la infraestructura visual del editor: creación de pestañas, obtención del CodeArea actual, indicador dirty, nombres por defecto y utilidades de JavaFX.
+    \item \textbf{CompilationDiagnosticsUiHelper:} Proyecta en el editor las líneas con error o warning detectadas durante compilación.
+\end{itemize}
+
+
+\section{Sistema de compilación}
+
+El sistema de compilación permite integrar toolchains externas como Z88DK y GBDK para generar ejecutables compatibles con distintas plataformas de 8 bits.
+
+La salida de los procesos se captura en tiempo real, permitiendo mostrar al usuario tanto los mensajes informativos como los errores de compilación. Estos errores se procesan mediante un servicio específico que analiza la salida y extrae información relevante como el archivo, la línea y la descripción del error.
+
+Este sistema de compilación se articula alrededor de \lstinline|BuildController|, que recibe la acción del usuario desde \lstinline|MainController|, construye el comando adecuado según la configuración activa y lanza el proceso en segundo plano.
+
+Encima de ese flujo base, la aplicación añade integración con consola, análisis de diagnósticos, directorio de salida común, soporte para \lstinline|Makefile| y ejecución posterior en emuladores.
+
+\clearpage
+
+\subsection{Punto de entrada desde la UI}
+
+La entrada principal está en el método \lstinline|MainController.onEjecutar(ActionEvent)|.
+
+Flujo resumido:
+\begin{enumerate}
+    \item la vista principal dispara la acción de ejecutar.
+    \item \lstinline|MainController| delega en \lstinline|BuildController.onEjecutar(...)|.
+    \item \lstinline|BuildController| inspecciona el archivo actual, el proyecto abierto y la configuración activa.
+    \item decide si debe ejecutar mediante \lstinline|Makefile| o mediante un emulador conocido.
+    \item localiza el artefacto final y lo lanza.
+\end{enumerate}
+
+Además, el método \lstinline|MainController.runRomFromProjectExplorer(File romFile)| permite abrir directamente una ROM ya generada desde el explorador del proyecto. Ese caso entra por \lstinline|BuildController.runRomFile(...)}| y elige emulador por extensión, sin recompilar.
+
+\subsection{Selección de emulador}
+
+La selección visible en tiempo de ejecución de un emulador depende de dos niveles:
+
+\begin{enumerate}
+    \item la configuración persistida en \lstinline|ConfigModel|.
+    \item la normalización aplicada por \lstinline|ConfigController| al guardar el compilador/perfil.
+\end{enumerate}
+
+Para ello se establecen las siguientes reglas de mapeo entre compiladores, perfiles y emuladores:
+
+\begin{itemize}
+    \item \lstinline|GBDK| → \lstinline|Emulicious|.
+    \item \lstinline|z88dk| con perfil Spectrum → \lstinline|JSpeccy|.
+\end{itemize}
+
+Esa lógica aparece tanto en \lstinline|ConfigModel.deriveEmulatorForCompilerAndProfile(...)| como en \lstinline|ConfigController.getEmulatorForCompiler(...)|.
+
+En tiempo de ejecución, el método \lstinline|BuildController.onEjecutar(...)| lee \lstinline|emuladorSeleccionado| y, si falta, aplica un valor por defecto derivado del compilador actual.
+
+
+\subsection{Proceso de inicio de compilación}
+
+El proceso inicial de compilación se realiza dentro del controlador \lstinline|BuildController| mediante el método \lstinline|BuildController.onEjecutar(...)| que sigue este orden:
+
+\begin{enumerate}
+    \item Escribe en consola un texto informativo para el usuario indicando \lstinline|Compilando y ejecutando...|.
+    \item Obtiene el compilador seleccionado por el usuario.
+    \item Localiza el archivo actualmente asociado a la pestaña activa.
+    \item Comprueba si debe usar \lstinline|Makefile| mediante \lstinline|shouldUseMakeBuild(...)|.
+    \item Si hay modo \lstinline|Makefile|, ejecuta el target configurado \lstinline|makeRunTarget|.
+    \item Si no hay archivo abierto, aborta con mensaje de error.
+    \item Resuelve el emulador seleccionado.
+    \item Delega en \lstinline|launchCoffeeGb(...)| o \lstinline|launchJSpeccy(...)|.
+\end{enumerate}
+
+Esto significa que el botón de ejecutar no siempre abre un emulador inmediatamente: en proyectos que usen un \lstinline|Makefile|, la ejecución puede ser completamente delegada al propio sistema de construcción.
+
+\subsection{Dependencias y artefactos implicados}
+
+El IDE carece de un emulador propio. En consecuencia, la ejecución en emulador depende de varios recursos externos o embebidos:
+
+\begin{itemize}
+    \item \lstinline|libs/Emulicious.jar| para Game Boy.
+    \item \lstinline|JSpeccy| en el \lstinline|classpath| de la aplicación.
+\end{itemize}
+
+Esos artefactos se incluyen en el proyecto y se referencian en el código para su ejecución. En el caso de Emulicious, se lanza como un proceso Java separado, mientras que JSpeccy se integra directamente en la aplicación. En el \lstinline|pom.xml| también aparecen dependencias de \lstinline|JAXB| porque JSpeccy las necesita para funcionar correctamente en entornos Java modernos.
+
+\clearpage
+
+\subsection{Clases implicadas y responsabilidades}
+
+\begin{itemize}
+    \item \textbf{MainController:} Coordina la acción \lstinline|Ejecutar| de la UI y expone la ejecución directa de ROMs desde el explorador del proyecto.
+    \item \textbf{BuildController:} Es el núcleo del proceso. Decide si ejecutar por \lstinline|Makefile| o por emulador, resuelve artefactos, abre ventanas y maneja mensajes de consola.
+    \item \textbf{ConfigModel:} Mantiene la relación entre compilador, perfil y emulador seleccionado.
+    \item \textbf{ConfigController:} Normaliza esa selección cuando el usuario cambia de plataforma en la configuración.
+    \item \textbf{EmulatorLauncher:} Lanza y monitoriza de forma básica Emulicious y JSpeccy como procesos Java separados.
+    \item \textbf{TerminalController:} Centraliza la salida textual visible durante la ejecución.
+\end{itemize}
+
+\section{Ejecución en emulador} 
+
+Una vez completado el proceso de compilación, el sistema permite ejecutar el programa generado utilizando emuladores externos. Para ello, se construye dinámicamente el comando de ejecución en función de la plataforma seleccionada.
+
+El IDE soporta la integración con distintos emuladores, lo que permite probar el software desarrollado sin necesidad de hardware físico. La ejecución se realiza mediante la invocación de procesos externos, de forma similar al sistema de compilación. En estos momentos, el sistema de ejecución en emulador se encuentra limitado a un conjunto específico de emuladores compatibles con las plataformas objetivo, aunque la arquitectura del sistema permite la incorporación de nuevos emuladores en el futuro.
+
+Concretamente, el sistema soporta la ejecución en Emulicious para proyectos de Game Boy y en JSpeccy para proyectos de Spectrum, siguiendo las reglas de mapeo establecidas en la configuración del sistema. 
+
+Mediante el uso de la clase \lstinline|BuildController.runRomFile(...)| se permite saltarse la lógica basada en el archivo fuente actual y elegir el emulador solo por extensión del archivo abierto desde el explorador. En el caso que se requiera la ejecución basada en las extensiones de archivo, se aplican las reglas de mapeo en ese caso:
+
+\begin{itemize}
+    \item Extensiones Game Boy → \lstinline|launchCoffeeGbRom(...)|.
+    \item Extensiones Spectrum → \lstinline|launchJSpeccyRom(...)|.
+\end{itemize}
+
+\clearpage
+
+Las reglas de mapeo de extensiones a emuladores se encuentran definidas como constantes en la clase \lstinline|BuildController| como se muestra en el fragmento de código \ref{lst:codigo_mapeo_extensiones_emuladores}.
+
+\begin{lstlisting}[style=mystyle, caption={Reglas de mapeo de extensiones a emuladores}, label={lst:codigo_mapeo_extensiones_emuladores}]   
+    private static final List<String> GAMEBOY_ROM_EXTENSIONS  = Collections.unmodifiableList(Arrays.asList("gb", "gbc"));
+    private static final List<String> SPECTRUM_ROM_EXTENSIONS = Collections.unmodifiableList(Arrays.asList("tap", "tzx", "sna", "z80"));
+\end{lstlisting}
+
+Ese flujo es útil para relanzar artefactos existentes, probar salidas generadas manualmente o ejecutar resultados de \lstinline|Makefile| sin depender del editor activo.
+
+\section{Sistema de plugins}
+
+
+
+
+El sistema de plugins permite extender la funcionalidad del IDE sin modificar su núcleo. Para ello, se utiliza el mecanismo ServiceLoader de Java, que facilita la carga dinámica de implementaciones en tiempo de ejecución como se puede comprobar en el fragmento de código \ref{lst:codigo_carga_plugins} en el que se representa el método \lstinline|loadPlugins| encargado de cargar plugins desde la carpeta de plugins.
+
+\begin{lstlisting}[style=mystyle, caption={Método encargado de cargar plugins desde la carpeta de plugins}, label={lst:codigo_carga_plugins}] 
+    /**
+     * Metodo encargado de cargar plugins desde la carpeta de plugins.
+     */
+    public void loadPlugins() {
+        if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
+            log("Directorio de plugins no encontrado: " + pluginsDir.getAbsolutePath());
+            return;
+        }
+
+        File[] jars = pluginsDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".jar");
+            }
+        });
+
+        if (jars == null || jars.length == 0) {
+            log("No plugin jars found in " + pluginsDir.getAbsolutePath());
+            return;
+        }
+
+        for (File jar : jars) {
+            // comprobar si esta habilitado/deshabilitado el JAR del plugin
+            String key     = jar.getName();
+            String enabled = props.getProperty(key, "true");
+
+            if (!Boolean.parseBoolean(enabled)) {
+                log("Skipping disabled plugin jar: " + jar.getName());
+                continue;
+            }
+
+            try {
+                URL url = jar.toURI().toURL();
+                
+                // Usar un classloader child-first para que los plugins puedan sobrescribir clases
+                URLClassLoader loader    = new ChildFirstClassLoader(new URL[] { url }, this.getClass().getClassLoader());
+                ServiceLoader<Plugin> sl = ServiceLoader.load(Plugin.class, loader);
+                Iterator<Plugin> it      = sl.iterator();
+
+                while (it.hasNext()) {
+                    try {
+                        Plugin plugin = it.next();
+                        // crear un contexto por plugin para poder rastrear la UI registrada por el plugin
+                        PluginContextImpl ctx = new PluginContextImpl(stage, scene, menuBar);
+                        plugin.onLoad(ctx);
+                        loaded.add(plugin);
+                        pluginLoaders.put(plugin, loader);
+                        pluginContexts.put(plugin, ctx);
+                        log("Loaded plugin: " + plugin.getName());
+                    } catch (Throwable t) {
+                        log("Failed to initialize plugin from " + jar.getName() + " -> " + t.getMessage());
+                        t.printStackTrace();
+                    }
+                }
+            } catch (MalformedURLException e) {
+                log("Invalid plugin jar URL: " + jar.getAbsolutePath());
+                e.printStackTrace();
+            }
+        }
+    }
+\end{lstlisting}
+    
+El sistema de plugins se articula alrededor de \lstinline|PluginManager|, que descubre implementaciones de \lstinline|Plugin| empaquetadas en JARs dentro de \lstinline|plugins/|, las carga mediante \lstinline|ServiceLoader| y controla su ciclo de vida dentro del host.
+
+\clearpage 
+
+Encima de ese núcleo, la aplicación añade:
+
+\begin{itemize}
+    \item Un contrato mínimo de plugin (\lstinline|Plugin|).
+    \item Un contexto controlado para interactuar con la UI (\lstinline|PluginContext|).
+    \item Seguimiento de menús y elementos de barra de herramientas añadidos por plugins.
+    \item Persistencia del estado habilitado/deshabilitado por JAR.
+    \item Gestión desde la ventana de configuración.
+    \item Y un marketplace remoto para descargar e instalar plugins.
+\end{itemize}
+
+Cada plugin implementa una interfaz común y dispone de un ciclo de vida básico que incluye su inicialización y activación. El IDE proporciona un contexto que permite a los plugins interactuar con determinadas funcionalidades del sistema.
+
+Esta arquitectura favorece la modularidad y permite añadir nuevas características de forma independiente. No obstante, el acceso de los plugins a los componentes internos del IDE se encuentra limitado para garantizar la estabilidad del sistema.
+
+En el Anexo \ref{A:plugins} se detalla una guia de implementación de plugins, incluyendo ejemplos y recomendaciones para su desarrollo.
+
+
+\subsection{Flujo de inicialización}
+
+El flujo de inicialización del sistema de plugins tiene el punto de entrada en \lstinline|MainApp.start(Stage)|. En ese método se siguen estos pasos:
+
+\begin{enumerate}
+    \item Se carga \lstinline|MainView.fxml|.
+    \item Se crea la \lstinline|Scene| principal.
+    \item Se obtiene el \lstinline|MainController| desde el \lstinline|FXMLLoader|.
+    \item Se construye \lstinline|PluginManager| con \lstinline|Stage|, \lstinline|Scene| y \lstinline|MenuBar|.
+    \item Se llama a \lstinline|loadPlugins()|.
+    \item Se llama a \lstinline|enablePlugins()|.
+\end{enumerate}
+
+Si el controlador principal no estuviera disponible, el gestor se construye igualmente, pero con \lstinline|menuBar = null|, de modo que los plugins siguen pudiendo cargarse aunque con menos integración visual.
+
+Además, \lstinline|MainApp| expone \lstinline|getPluginManager()| como acceso global para que otras capas, especialmente \lstinline|ConfigController|, puedan pedir recargas o consultar plugins descubiertos.
+
+\subsection{Habilitación y ciclo de vida}
+
+Una vez cargados, los plugins se activan con \lstinline|PluginManager.enablePlugins()|. Ese método:
+\begin{enumerate}
+    \item captura una línea base de la UI del host si aún no existe.
+    \item recorre la lista de plugins cargados.
+    \item llama a \lstinline|enablePluginWithUiTracking(plugin)|.
+\end{enumerate}
+
+Dentro de \lstinline|enablePluginWithUiTracking(...)| el gestor:
+
+\begin{itemize}
+    \item toma una instantánea de menús y barras de herramientas antes de activar el plugin.
+    \item ejecuta \lstinline|plugin.onEnable()|.
+    \item vuelve a inspeccionar la UI después.
+    \item calcula qué menús y qué nodos nuevos aparecieron.
+    \item asocia esos elementos al plugin para poder retirarlos más tarde.
+\end{itemize}
+
+Este seguimiento permite descargar plugins de forma más segura incluso cuando el plugin no elimina por sí mismo todo lo que añadió.
+
+\subsection{Marketplace remoto de plugins}
+
+El IDE incorpora un sistema de gestión de plugins basado en un repositorio remoto alojado mediante GitHub Pages. 
+
+El catálogo de extensiones esta definido en un archivo JSON accesible públicamente, el cual contiene la información necesaria de cada plugin, como nombre, descripción, versión, autor, enlace de descarga, etc... Los paquetes de plugins se distribuyen mediante las funcionalidades de publicación de GitHub, permitiendo que el IDE pueda consultar automáticamente el catálogo.
+
+
+
+La parte remota se encapsula en \lstinline|PluginMarketplaceService|. Este servicio se encarga de:
+
+\begin{itemize}
+    \item Leer el catálogo de plugins desde la URL configurada.
+    \item Parsear el JSON y convertirlo en objetos de dominio.
+    \item Descargar los archivos JAR de los plugins seleccionados por el usuario.
+    \item Integrar los plugins descargados en el sistema de plugins local.
+\end{itemize}
+
+\clearpage
+
+Su URL por defecto es: 
+
+\lstinline|https://raw.githubusercontent.com/ginjol83/plugins-repo/main/plugins.json|
+
+Un ejemplo de formato esperado del JSON se puede ver en el fragmento de código \ref{lst:codigo_formato_json_plugins}.
+
+\begin{lstlisting}[style=mystyle, caption={Formato esperado del JSON para el marketplace de plugins}, label={lst:codigo_formato_json_plugins}]
+[
+    "editor-tiles-gbdk": {
+      "name": "Editor de Tiles GBDK",
+      "version": "1.0.0",
+      "description": "Editor de tiles para Game Boy Development Kit - Herramienta grafica para diseno de tiles",
+      "author": "Andres Gimenez",
+      "category": "graphic-tools",
+      "tags": ["gameboy", "tiles", "gbdk", "graphics", "editor"],
+      "downloadUrl": "https://raw.githubusercontent.com/ginjol83/plugins-repo/main/plugins/graphic-tools/editor-tiles-gbdk-1.0.0.jar",
+      "fileSize": "2.1 MB",
+      "minSamarucVersion": "1.0.0",
+      "dependencies": [],
+      "releaseDate": "2026-04-14",
+      "changelog": "Version inicial del editor de tiles para GBDK",
+      "documentation": "https://github.com/ginjol83/plugins-repo/blob/main/docs/editor-tiles-gbdk.md",
+      "license": "MIT",
+      "homepage": "https://github.com/ginjol83/plugins-repo",
+      "issues": "https://github.com/ginjol83/plugins-repo/issues",
+      "downloads": 0,
+      "rating": 0,
+      "verified": true
+    },
+]
+\end{lstlisting}
+
+\subsection{Clases implicadas y responsabilidades}
+
+\begin{itemize}
+    \item \lstinline|MainApp| Inicializa el sistema de plugins en el arranque y expone el \lstinline|PluginManager| para el resto de la aplicación.
+    \item \lstinline|PluginManager| Es la pieza central del sistema: descubre JARs, usa \lstinline|ServiceLoader|, crea contextos, activa plugins, rastrea cambios de UI, limpia recursos y recarga el conjunto completo.
+    \item \lstinline|Plugin| Define el ciclo de vida mínimo que debe implementar cualquier extensión.
+    \item \lstinline|PluginContext| y \lstinline|PluginContextImpl| Proporcionan acceso controlado al host y registran recursos UI para poder retirarlos de forma segura.
+    \item \lstinline|ConfigController| Presenta la gestión local y remota de plugins dentro de la ventana de configuración.
+    \item \lstinline|PluginApplicationService| Encapsula instalación, borrado, recarga y coordinación con el hilo JavaFX.
+    \item \lstinline|PluginMarketplaceService| Lee el catálogo remoto y descarga plugins publicados.
+    \item \lstinline|PluginInfo| y \lstinline|PluginMarketplaceItem| Sirven como modelos de datos para representar plugins locales y remotos en la UI.
+\end{itemize}
+
+\subsection{Tests relacionados}
+
+Hay al menos dos bloques de pruebas centrados en este subsistema:
+
+\begin{itemize}
+    \item \lstinline|PluginApplicationServiceTest|: cubre creación de carpeta, instalación, borrado y delegación de recarga.
+    \item \lstinline|PluginMarketplaceServiceTest|: cubre parseo del catálogo, normalización de URLs y nombres de fichero descargados.
+\end{itemize}
+
+
+\section{Configuración del sistema}
+
+La configuración del IDE se gestiona mediante un modelo específico que almacena preferencias del usuario como rutas de toolchains o ajustes de ejecución.
+
+Estos datos se persisten utilizando archivos de propiedades, lo que permite mantener la configuración entre distintas ejecuciones de la aplicación. La lectura y escritura de estos archivos se realiza mediante utilidades estándar de Java.
+
+\subsection{Ventana y estructura visual}
+
+La vista está definida en el archivo \lstinline|src/main/resources/views/ConfigView.fxml|.
+
+La estructura principal de la ventana esta compuesta por los siguientes elementos:
+
+\begin{itemize}
+    \item Un \lstinline|BorderPane| raíz.
+    \item Un \lstinline|ScrollPane| para permitir formularios largos.
+    \item Un \lstinline|TabPane| principal (\lstinline|tabPaneConfig|).
+    \item Un botón final de cierre.
+\end{itemize}
+
+Actualmente el diálogo agrupa tres pestañas principales para configurar aspectos clave del sistema:\lstinline|Idioma|, \lstinline|Compilador| y \lstinline|Plugins|.
+
+Dentro de \lstinline|Compilador| existe además un segundo \lstinline|TabPane| (\lstinline|tabPaneCompilerOptions|) con subpestañas para configurar aspectos específicos de cada compilador o perfil: \lstinline|GBDK|, \lstinline|Z88DK - Spectrum|, \lstinline|Z88DK - Amstrad CPC| y \lstinline|Makefile|.
+
+Esto significa que el diálogo de configuración no es solo un formulario plano: actúa como concentrador de configuración global de la aplicación.
+
+\subsection{Persistencia}
+
+La persistencia está desacoplada mediante la interfaz \lstinline|ConfigRepository|. Que basicamente define los métodos necesarios para cargar y guardar la configuración de la aplicación. El código de esta, se puede ver en el fragmento de código \ref{lst:codigo_config_repository}.
+
+\begin{lstlisting}[style=mystyle, caption={Código de la interfaz ConfigRepository}, label={lst:codigo_config_repository}]
+
+package com.retroeditor.service;
+
+import java.io.File;
+import java.util.Properties;
+
+/**
+ * Repositorio para cargar/guardar configuracion persistente.
+ */
+public interface ConfigRepository {
+    Properties load(File configFile);
+    void save(File configFile, Properties properties);
+}
+
+\end{lstlisting}
+
+La implementación actual de esta interfaz, denominada \lstinline|PropertiesConfigRepository|, proporciona un mecanismo robusto para la gestión de la configuración de la aplicación. Entre sus principales características destaca la capacidad de devolver siempre una instancia válida de \lstinline|Properties|, incluso cuando el archivo de configuración aún no existe. Además, durante el proceso de guardado, crea automáticamente los directorios padre necesarios en caso de que no estén presentes en el sistema de archivos. Para la persistencia de los datos utiliza el método \lstinline|properties.store(...)|, garantizando así un almacenamiento estandarizado y compatible con el formato de propiedades de Java.
+
+%% TODO Seguir revisando a partir de aquí
+
+\lstinline|ConfigController.persistConfig()| encapsula la escritura real llamando a \lstinline|configModel.toProperties()| y entregando el resultado a \lstinline|configRepository.save(...)|.
+
+\clearpage
+
+\subsection{Gestión de idioma}
+
+La pestaña \lstinline|Idioma| controla basicamente dos cosas: el idioma de la interfaz (\lstinline|idioma|) y el idioma del README de proyectos nuevos (\lstinline|project_readme_language|).
+
+El flujo de actualización del idioma se inicia cuando el usuario selecciona un nuevo idioma en el combo de la pestaña \lstinline|Idioma|. Ese cambio dispara el método \lstinline|onSaveLanguage(...)|, que sigue estos pasos:
+
+\begin{enumerate}
+    \item \lstinline|loadLanguageSelectionsFromConfig()| rellena los combos y selecciona el valor activo.
+    \item \lstinline|onSaveLanguage(...)| actualiza \lstinline|ConfigModel|.
+    \item persiste el archivo de configuración y se ejecuta el callback \lstinline|onLanguageChanged|.
+    \item refresca textos locales del propio diálogo con \lstinline|refreshTexts(...)|.
+\end{enumerate}
+
+\lstinline|MainController|, al recibir ese callback, vuelve a cargar el \lstinline|ResourceBundle|, actualiza \lstinline|AppLogger| y reaplica los textos sobre la UI principal. Es decir, cambiar el idioma en configuración no solo guarda un valor, sino que también desencadena una actualización visible del interfaz completo.
+
+Los properties relacionados con el idioma sí que tienen archivos reales de configuración:
+
+\begin{itemize}
+    \item \lstinline|src/main/resources/i18n/MessagesBundle.properties|.
+    \item \lstinline|src/main/resources/i18n/MessagesBundle_es.properties|.
+    \item \lstinline|src/main/resources/i18n/MessagesBundle_en.properties|.
+\end{itemize}
+
+La estructura de estos archivos es la típica de un ResourceBundle, con claves y valores que representan los textos localizados para cada idioma como se puede ver en el siguiente fragmento de código \ref{lst:codigo_resource_bundle} extraido de \lstinline|MessagesBundle_en.properties|. El sistema carga el ResourceBundle correspondiente al idioma seleccionado por el usuario, lo que permite mostrar la interfaz en el idioma deseado.
+
+\begin{lstlisting}[style=mystyle, caption={Ejemplo de contenido del ResourceBundle en inglés}, label={lst:codigo_resource_bundle}]
+    # English
+    menu.file=File
+    menu.edit=Edit
+    menu.exit=Exit
+    button.saveAs=Save as
+    label.configTitle=Configuration
+    label.language=Select interface language:
+    ...
+\end{lstlisting}
+
+Por todo esto cada vez que se añade un nuevo texto a la interfaz, se debe incluir su clave y valor en los archivos de ResourceBundle para cada idioma soportado, y luego utilizar esa clave en el código para referenciar el texto localizado.
+
+\clearpage
+
+\subsection{Claves persistidas más relevantes}
+
+Sin ser una lista exhaustiva, algunas claves importantes que se guardan en la configuración del sistema son:
+
+\begin{itemize}
+    \item \lstinline|idioma|.
+    \item \lstinline|project_readme_language|.
+    \item \lstinline|gbdk_bin|.
+    \item \lstinline|spectrum_bin|.
+    \item \lstinline|cpc_bin|.
+    \item \lstinline|compilador|.
+    \item \lstinline|compilador_seleccionado|.
+    \item \lstinline|z88dk_profile|.
+    \item \lstinline|emulador_seleccionado|.
+    \item \lstinline|z88dk_clib_option|.
+    \item \lstinline|z88dk_target|.
+    \item \lstinline|z88dk_create_app|.
+    \item \lstinline|z88dk_cpc_clib_option|.
+    \item \lstinline|z88dk_cpc_target|.
+    \item \lstinline|z88dk_cpc_create_app|.
+    \item \lstinline|gbdk_opt_level|.
+    \item \lstinline|gbdk_opt_speed|.
+    \item \lstinline|gbdk_opt_size|.
+    \item \lstinline|make_executable|.
+    \item \lstinline|make_build_target|.
+    \item \lstinline|make_run_target|.
+    \item \lstinline|make_extra_args|.
+    \item \lstinline|project_detect_auto_apply|.
+    \item \lstinline|project_detect_auto_apply_threshold|.
+    \item \lstinline|marketplace_catalog_url|.
+\end{itemize}
+
+La serialización real la define \lstinline|ConfigModel.toProperties()|.
+
+\clearpage
+
+\subsection{Clases implicadas y responsabilidades}
+
+\begin{itemize}
+    \item \lstinline|MainController| Abre el diálogo de configuración y reacciona a cambios de idioma para refrescar la UI principal.
+    \item \lstinline|ConfigDialogCoordinator| Coordina la creación de la ventana, la inyección de dependencias, el centrado y la prevención de aperturas duplicadas.
+    \item \lstinline|ConfigController| Es la pieza central del subsistema: carga desde disco, vuelca datos a la UI, valida entradas, persiste cambios y refresca los textos del diálogo.
+    \item \lstinline|ConfigModel| Mantiene la configuración en memoria, normaliza valores heredados y convierte entre estado tipado y \lstinline|Properties|.
+    \item \lstinline|ConfigRepository| Define el contrato de persistencia de configuración.
+    \item \lstinline|PropertiesConfigRepository| Implementa la persistencia real sobre un archivo \lstinline|.properties| en el directorio del usuario.
+    \item \lstinline|PluginApplicationService| y \lstinline|PluginMarketplaceService| Dan soporte a la parte de plugins y marketplace integrada en el mismo diálogo de configuración.
+\end{itemize}
+
+\subsection{Tests relacionados}
+
+Hay al menos dos bloques de pruebas ligados a este subsistema:
+
+\begin{itemize}
+    \item \lstinline|ConfigModelLegacyCompatibilityTest|: valida compatibilidad con configuraciones heredadas y normalización de compilador/perfil/emulador.
+    \item \lstinline|PropertiesConfigRepositoryTest|: valida carga segura y round-trip de persistencia en archivo \lstinline|.properties|.
+\end{itemize}
+
+\clearpage
+
+\section{Explorador de proyectos}
+
+El explorador de proyectos se articula alrededor de \lstinline|ProjectExplorerController|, que gobierna el árbol visual de archivos y carpetas del proyecto activo, genera acciones contextuales sobre esos nodos y coordina la apertura de archivos o la ejecución de ROMs a través de \lstinline|MainController|.
+
+Encima de ese flujo base, la aplicación añade:
+
+\begin{itemize}
+    \item Un árbol perezoso de directorios y archivos.
+    \item Integración con creación y borrado desde menú contextual.
+    \item Apertura por doble clic o tecla \lstinline|Enter|.
+    \item Borrado con tecla \lstinline|Delete|.
+    \item Refresco manual del árbol.
+    \item Ejecución directa de ROMs soportadas.
+    \item Apertura del directorio en el explorador del sistema.
+\end{itemize}
+
+\subsection{Estructura visual}
+
+La vista está definida en \lstinline|src/main/resources/views/ProjectExplorer.fxml| cuya estructura es muy simple:
+
+\begin{enumerate}
+    \item Un \lstinline|AnchorPane| raíz.
+    \item Un \lstinline|Button| \lstinline|btnRefreshTree| en la parte superior.
+    \item Un \lstinline|TreeView<String>| que ocupa el resto del panel.
+\end{enumerate}
+
+Ese FXML se incrusta dentro de \lstinline|MainView.fxml| mediante \lstinline|fx:include| en la zona izquierda del \lstinline|SplitPane| principal. Por tanto, el explorador no es una ventana independiente: forma parte permanente del layout principal de la aplicación.
+
+\clearpage
+
+\subsection{Menú contextual}
+
+Cada celda del árbol comparte un menú contextual con estas acciones:
+
+\begin{itemize}
+    \item \lstinline|Nuevo archivo|.
+    \item \lstinline|Nueva carpeta|.
+    \item \lstinline|Eliminar|.
+    \item \lstinline|Ejecutar ROM en emulador|.
+    \item \lstinline|Abrir directorio en Windows|.
+\end{itemize}
+
+El controlador además fuerza la selección del nodo al hacer clic derecho, para que la acción contextual se aplique sobre el elemento visible al usuario.
+
+\subsection{Construcción del árbol}
+
+La raíz visual del explorador de proyectos se genera mediante el método \lstinline|ProjectExplorerController.setRootDirectory(File dir)|. Este método es responsable de inicializar la estructura principal del árbol de navegación, comenzando por almacenar la referencia al directorio raíz en la variable \lstinline|rootDirectory|. Posteriormente, invoca el método \lstinline|createNode(dir)| para construir recursivamente el nodo raíz asociado al proyecto y lo establece como raíz del componente \lstinline|TreeView|. Una vez creado, el nodo principal se expande automáticamente y se habilita la visualización explícita de la raíz mediante la llamada a \lstinline|setShowRoot(true)|.
+
+Con el objetivo de mantener una asociación directa entre cada elemento visual y el archivo real representado, el controlador utiliza una subclase interna denominada \lstinline|FileTreeItem extends TreeItem<String>|. Esta implementación extiende el comportamiento estándar de \lstinline|TreeItem| añadiendo una referencia persistente al objeto \lstinline|File| correspondiente, permitiendo así acceder fácilmente al recurso físico asociado a cada nodo mostrado en el árbol de archivos.
+
+\clearpage
+
+\subsection{Carga perezosa de directorios}
+
+La construcción del árbol no recorre todo el proyecto desde el principio.
+
+El método \lstinline|createNode(File file)| implementa una estrategia de carga diferida (lazy loading) para optimizar la representación de directorios dentro del explorador de archivos. 
+
+Se puede ver en el fragmento de código \ref{lst:codigo_create_node} la implementación de este método.
+
+\begin{lstlisting}[style=mystyle, caption={Implementación del método createNode con carga diferida}, label={lst:codigo_create_node}]
+private FileTreeItem createNode(File file) {
+    if (file == null) return null;
+    FileTreeItem node = new FileTreeItem(file);
+
+    if (file.isDirectory()) {
+        node.getChildren().add(new javafx.scene.control.TreeItem<>(""));
+
+        node.addEventHandler(javafx.scene.control.TreeItem.branchExpandedEvent(), ev -> {
+            javafx.scene.control.TreeItem<?> sourceItem = (javafx.scene.control.TreeItem<?>) ev.getSource();
+            if (!(sourceItem instanceof FileTreeItem)) return;
+
+            FileTreeItem source = (FileTreeItem) sourceItem;
+
+            // Si solo tiene el nodo ficticio, cargar los hijos reales
+            if (source.getChildren().size() == 1 && !(source.getChildren().get(0) instanceof FileTreeItem)) {
+                source.getChildren().clear();
+                File f = source.getFile();
+
+                if (f != null && f.isDirectory()) {
+                    File[] files = f.listFiles();
+                    if (files != null) {
+                        java.util.Arrays.sort(files, (a, b) -> {
+                            if (a.isDirectory()  && !b.isDirectory()) return -1;
+                            if (!a.isDirectory() && b.isDirectory())  return 1;
+
+                            return a.getName().compareToIgnoreCase(b.getName());
+                        });
+                        for (File child : files) {
+                            FileTreeItem childNode = createNode(child);
+                            if (childNode != null) source.getChildren().add(childNode);
+                        }
+    }   }   }   }); }
+    return node;
+}
+\end{lstlisting}
+
+Inicialmente, se crea una instancia de \lstinline|FileTreeItem| asociada al objeto \lstinline|File| correspondiente. Cuando el elemento representa un directorio, se añade un nodo hijo ficticio con el propósito de indicar visualmente que la carpeta puede expandirse. Posteriormente, se registra un listener sobre el evento \lstinline|branchExpandedEvent()|, de manera que, al expandir la carpeta por primera vez, el sistema elimina el hijo ficticio y carga dinámicamente el contenido real del directorio. Los elementos encontrados son ordenados priorizando las carpetas frente a los archivos y, finalmente, se generan los nodos hijos de forma recursiva para mantener la estructura jerárquica completa. 
+
+Esta estrategia permite reducir significativamente el coste de carga inicial en proyectos con una gran cantidad de archivos y directorios, mejorando el rendimiento y la experiencia de usuario del IDE.
+
+\subsection{Representación visual de nodos}
+
+El componente \lstinline|TreeView| utiliza un \lstinline|cellFactory| personalizado con el objetivo de adaptar la representación visual y funcional de cada nodo del explorador de archivos del IDE. 
+
+Durante la ejecución del método \lstinline|updateItem(...)|, cada celda resuelve el objeto \lstinline|File| asociado al nodo correspondiente y genera dinámicamente una interfaz compuesta por un icono y el nombre del elemento mediante un contenedor \lstinline|HBox|. Dependiendo del tipo de archivo, se muestra un icono identificativo de carpeta o archivo. 
+
+Asimismo, el sistema habilita o deshabilita determinadas acciones del menú contextual según las características del nodo seleccionado. Entre las reglas implementadas, destaca que la opción \lstinline|runRomItem| únicamente se habilita cuando el archivo corresponde a una ROM soportada, validada mediante el método \lstinline|MainController.isSupportedRomFile(...)|. Del mismo modo, la acción \lstinline|deleteItem| permanece deshabilitada para la carpeta raíz del proyecto, evitando así eliminaciones accidentales de la estructura principal del entorno de trabajo.
+
+\subsection{Clases implicadas y responsabilidades}
+
+\begin{itemize}
+    \item \lstinline|MainController| Inicializa el explorador, establece el proyecto activo, abre archivos desde el árbol, ejecuta ROMs y cierra pestañas cuando se borran rutas del proyecto.
+    \item \lstinline|ProjectExplorerController| Es la pieza central del subsistema: construye el árbol, define la interacción del usuario, muestra el menú contextual y coordina las acciones con el host.
+    \item \lstinline|ProjectExplorerModel| Encapsula creación y borrado real de archivos y carpetas en disco.
+    \item \lstinline|ProjectExplorer.fxml| Define la vista JavaFX mínima del panel lateral del explorador.
+\end{itemize}
+
+\clearpage
+
+\section{Búsqueda y utilidades}
+
+El IDE incluye funcionalidades de búsqueda tanto a nivel de archivo como de proyecto. Estas se implementan mediante servicios que recorren el contenido de los archivos y localizan coincidencias con el texto introducido por el usuario.
+
+La búsqueda en archivo se realiza sobre el contenido actualmente abierto, mientras que la búsqueda en proyecto implica recorrer múltiples archivos, lo que requiere una gestión eficiente para evitar problemas de rendimiento.
+
+El subsistema de búsqueda se articula alrededor de \lstinline|SearchController|, que recibe acciones desde la UI principal, decide si la búsqueda es local o global y delega la lógica de coincidencias en servicios puros desacoplados de JavaFX.
+
+\subsection{Inicialización del controlador de búsqueda}
+
+\lstinline|SearchController| no se crea inmediatamente al instanciar \lstinline|MainController|, sino cuando la \lstinline|Scene| ya está disponible.
+
+El flujo está en la inicialización diferida de \lstinline|MainController|:
+
+\begin{enumerate}
+    \item se espera al siguiente ciclo JavaFX con \lstinline|Platform.runLater(...)|.
+    \item se obtiene la \lstinline|Scene| y su \lstinline|Stage|.
+    \item se registran atajos globales.
+    \item se crea \lstinline|SearchController| con referencias a \lstinline|ProjectContextPort| y \lstinline|FileOpenPort|.
+\end{enumerate}
+
+El propio \lstinline|MainController| actúa como implementación de \lstinline|ProjectContextPort| y \lstinline|FileOpenPort|, porque ya expone tanto \lstinline|getCurrentProjectDir()| como \lstinline|openFileFromExplorer(File file)|.
+
+\subsection{Clases implicadas y responsabilidades}
+
+\begin{itemize}
+    \item \lstinline|MainController| Dispara acciones de búsqueda, registra atajos, crea \lstinline|SearchController| y aporta contexto de proyecto/apertura de archivos.
+    \item \lstinline|SearchController| Es la pieza central del subsistema: construye diálogos, delega coincidencias, presenta resultados y mueve la selección sobre el editor.
+    \item \lstinline|TextSearchService| Resuelve la búsqueda local con soporte para regex, mayúsculas y navegación siguiente/anterior.
+    \item \lstinline|ProjectSearchService| Realiza la búsqueda global sobre los archivos del proyecto activo.
+    \item \lstinline|FXUtils| Aporta utilidades de UI para localizar el editor actual y refrescar textos relacionados con búsqueda.
+    \item \lstinline|ProjectContextPort| y \lstinline|FileOpenPort| Definen el contrato mínimo que el host expone al subsistema de búsqueda.
+\end{itemize}
+
+\subsection{Tests relacionados}
+
+Hay al menos dos bloques de pruebas ligados a este subsistema:
+\begin{itemize}
+    \item \lstinline|TextSearchServiceTest|: cubre búsqueda siguiente/anterior, wrap, regex inválidas y búsqueda total.
+    \item \lstinline|ProjectSearchServiceTest|: cubre recorrido del árbol de proyecto y validaciones de entrada.
+\end{itemize}
+
+\section{Clase utilitaria FXUtils}
+
+La clase \lstinline|FXUtils| centraliza diversas operaciones auxiliares relacionadas con la interfaz gráfica y la experiencia de usuario del proyecto. Su objetivo principal es encapsular tareas repetitivas de JavaFX para evitar duplicidad de código en los controladores principales y facilitar una arquitectura más modular y mantenible. Entre sus responsabilidades destacan la gestión de pestañas del editor, la recuperación del editor activo, la creación de proyectos mediante plantillas y la actualización dinámica de la interfaz cuando cambia el idioma de la aplicación.
+
+Uno de los métodos más relevantes de esta clase es \lstinline|addTab(...)|, encargado de crear dinámicamente nuevas pestañas de edición. Durante este proceso se inicializa un \lstinline|CodeArea|, se aplica numeración de líneas, resaltado de sintaxis y estilos visuales, además de registrar mecanismos para detectar cambios en el contenido. La clase también implementa la gestión del estado de modificación de cada documento, añadiendo automáticamente un asterisco en el título de las pestañas que contienen cambios sin guardar mediante métodos como \lstinline|updateTabDirtyIndicator(...)| y \lstinline|markTabSaved(...)|.
+
+Finalmente, la clase también participa en otras tareas transversales del IDE, como la creación de pestañas HTML mediante \lstinline|WebView| y la internacionalización dinámica de la interfaz a través del método \lstinline|refreshLanguage(...)|. Aunque concentra responsabilidades diversas, su existencia permite simplificar considerablemente los controladores principales de la aplicación y reutilizar comportamientos comunes en distintos módulos del sistema.
+
+\clearpage
+
+\section{Decisiones técnicas y limitaciones}
+
+Durante el desarrollo del sistema se han tomado diversas decisiones técnicas orientadas a simplificar la implementación y mejorar la mantenibilidad. Entre ellas destaca el uso de JavaFX para la interfaz gráfica, el patrón MVC para la organización del código y el uso de herramientas externas para la compilación.
+
+No obstante, el sistema presenta ciertas limitaciones. La dependencia de toolchains externas implica la necesidad de configuraciones adicionales por parte del usuario. Asimismo, el sistema de plugins ofrece capacidades limitadas de interacción con el núcleo del IDE, lo que restringe su potencial de extensión.
+
+Por último, el rendimiento del sistema puede verse afectado en proyectos de gran tamaño, especialmente en operaciones como la búsqueda global o la gestión de múltiples archivos abiertos.
+
+\end{document}

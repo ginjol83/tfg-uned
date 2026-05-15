@@ -1,0 +1,591 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Diseño}
+\label{C:diseno}
+
+\section{Introducción}
+
+En esta sección se explica cómo está organizada la aplicación siguiendo el patrón MVC (Model-View-Controller), qué clases participan y cómo se relacionan. Se describe el diseño arquitectónico del sistema desarrollado, detallando las decisiones tomadas en la organización del código, la distribución de responsabilidades y la interacción entre los distintos componentes que conforman el IDE.
+
+El diseño se ha planteado con el objetivo de construir una aplicación modular, mantenible y extensible, capaz de evolucionar de forma progresiva sin comprometer su estabilidad. Para ello, se ha optado por una arquitectura basada en el patrón Modelo-Vista-Controlador (MVC), que permite separar claramente la lógica de presentación, la lógica de negocio y el acceso a recursos externos.
+
+Asimismo, se ha tenido en cuenta la necesidad de soportar múltiples toolchains y plataformas (como GBDK o z88dk), lo que ha influido directamente en la definición de interfaces y en la incorporación de un sistema de plugins que permite ampliar la funcionalidad del IDE sin modificar su núcleo.
+ 
+\section{El patrón MVC}
+
+El patrón MVC es una arquitectura que busca reducir el acoplamiento dividiendo las responsabilidades en tres capas claramente diferenciadas:
+
+\begin{itemize}
+    \item \textbf{Modelo (Model)}: representa el estado y la lógica de negocio de la aplicación. No tiene conocimiento de la interfaz de usuario.
+    \item \textbf{Vista (View)}: es la interfaz de usuario que muestra el estado del modelo y recibe las interacciones del usuario. No contiene lógica de negocio.
+    \item \textbf{Controlador (Controller)}: actúa como intermediario entre la vista y el modelo. Recibe eventos de la vista, procesa la lógica de negocio a través del modelo y actualiza la vista en consecuencia.
+\end{itemize}
+\clearpage
+
+Además, se ha implementado un sistema de servicios que actúan como una capa intermedia encargada de encapsular la lógica de negocio del sistema, permitiendo desacoplar los controladores de los detalles de implementación y facilitando tanto la reutilización como la testabilidad del código.
+
+A continuación se muestra en la figura \ref{fig:mvc-diagram} un esquema general del patrón MVC \cite{struts_in_action}, donde se pueden observar las relaciones entre sus componentes
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=10cm]{ejemplos/mvc_diagram.jpg}
+    \caption{Esquema general del patrón MVC \cite{struts_in_action}}
+    \label{fig:mvc-diagram}
+\end{figure}
+
+\clearpage
+
+\subsection{Organización del proyecto}
+
+La organización del código sigue una adaptación del patrón arquitectónico MVC (Modelo-Vista-Controlador), tal y como se ha descrito en secciones anteriores. La Figura~\ref{fig:arquitectura-mvc} muestra la arquitectura por capas del IDE, incluyendo sus principales componentes y las relaciones de dependencia entre ellos.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=16cm]{../imagenes/diagramas/mvc-layers-components.png}
+    \caption{Arquitectura MVC por capas del sistema}
+    \label{fig:arquitectura-mvc}
+\end{figure}
+
+En la capa de \textbf{vista (View)} se encuentran los archivos FXML que definen la interfaz gráfica de usuario, como \lstinline|MainView.fxml|, \lstinline|ProjectExplorer.fxml| y \lstinline|ConfigView.fxml|. Estos componentes son responsables exclusivamente de la representación visual y delegan la lógica de interacción en los controladores. Concretamente gestionan las vistas de la pantalla de configuración, el explorador de proyecto y la pantalla principal.
+
+\par{La capa de \textbf{controlador (Controller)} actúa como intermediaria entre la vista y la lógica de negocio. Incluye un controlador principal (\lstinline|MainController|) y diversos controladores especializados, como \lstinline|BuildController|, \lstinline|SearchController| o \lstinline|TerminalController|. Estos gestionan los eventos de la interfaz y coordinan la ejecución de los servicios correspondientes.}
+
+\par{Por debajo se sitúa la capa de \textbf{servicios o casos de uso (Service / Use Cases)}, donde reside la lógica de negocio del sistema. En esta capa se encuentran componentes como \lstinline|ProjectSearchService|, \lstinline|TextSearchService|, \lstinline|PluginApplicationService| o \lstinline|CompilationDiagnosticParserService|. Su función es encapsular operaciones concretas del dominio, manteniendo independencia respecto a la interfaz gráfica.}
+
+\par{La capa de \textbf{modelo (Model)} contiene las estructuras de datos que representan el estado de la aplicación, como \lstinline|ProjectExplorerModel|, \lstinline|EditorModel| o \lstinline|ConfigModel|. Estos elementos son utilizados por los controladores para reflejar y actualizar el estado de la aplicación.}
+
+\clearpage
+ 
+\par{Finalmente, la capa de \textbf{infraestructura} agrupa los componentes encargados de la interacción con sistemas externos, como el sistema de archivos, la gestión de plugins o la integración con toolchains y emuladores. Destacan elementos como \lstinline|PluginManager| o los repositorios de configuración basados en archivos \lstinline|.properties|.}
+
+\par{Las dependencias entre capas siguen un flujo descendente, donde las capas superiores (vista y controladores) dependen de las inferiores (servicios e infraestructura), pero no a la inversa. Esta organización permite desacoplar la lógica de negocio de la interfaz, facilitando la mantenibilidad, la testabilidad y la extensibilidad del sistema.}
+
+\par{En conjunto, esta arquitectura proporciona una separación clara de responsabilidades, permitiendo evolucionar cada componente de forma independiente y favoreciendo la incorporación de nuevas funcionalidades, como el sistema de plugins, sin impactar significativamente en el resto del sistema.}
+
+\subsection{Mapa rápido (quien habla con quien)}
+
+\par{La Figura~\ref{fig:mvc-quick-map} ofrece un mapa rápido de las interacciones entre los componentes clave del sistema, mostrando cómo se comunican entre sí a través de las distintas capas de la arquitectura MVC. Este diagrama facilita la comprensión de las relaciones y dependencias entre los elementos del sistema, permitiendo identificar rápidamente quién interactúa con quién en el flujo de ejecución de la aplicación.}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.7\textwidth]{../imagenes/diagramas/mvc-quick-map.png}
+\caption{Mapa rápido de interacciones entre componentes MVC}
+\label{fig:mvc-quick-map}
+\end{figure}
+
+\par{La interacción se inicia en la vista, definida mediante archivos FXML, donde el usuario realiza acciones que generan eventos de interfaz. Estos eventos son capturados por el controlador, que actúa como intermediario entre la interfaz y la lógica de la aplicación. El controlador actualiza el estado del modelo cuando es necesario y delega la ejecución de operaciones más complejas en la capa de servicios, encargada de implementar los casos de uso, el procesamiento de datos y el acceso a repositorios. A su vez, los servicios interactúan con la capa de infraestructura para realizar operaciones concretas como el acceso al sistema de archivos, la gestión de configuraciones, la carga de plugins o la ejecución de procesos externos. Una vez obtenidos los resultados, estos siguen el flujo inverso hasta llegar nuevamente a la vista, donde el controlador actualiza la interfaz de usuario para reflejar los cambios producidos. De este modo, se garantiza una separación clara de responsabilidades y un bajo acoplamiento entre las distintas capas del sistema.}
+
+\subsection{Matriz de relaciones clave}
+
+Para identificar interacciones, dependencias, causas y efectos entre los componentes del sistema, se ha elaborado una matriz de relaciones clave que resume las responsabilidades principales de las clases más relevantes del proyecto en la tabla \ref{tab:matriz_relaciones_clave}. Esta matriz permite visualizar de forma clara quién depende de quién y qué función desempeña cada clase dentro de la arquitectura general del sistema.
+
+\begin{table}[!htb]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|p{3.7cm}|p{2cm}|X|X|}
+\hline
+\textbf{Clase} & \textbf{Capa} & \textbf{Depende de} & \textbf{Responsabilidad principal} \\
+\hline
+  \lstinline|MainController| & Controller & subcontroladores + servicios + modelos & Orquestación de la pantalla principal \\
+  \hline
+  \lstinline|SearchController| & Controller & \lstinline|ProjectContextPort|, \lstinline|FileOpenPort|, \lstinline|ProjectSearchService|, \lstinline|TextSearchService| & Búsqueda en archivo/proyecto y navegación \\
+  \hline
+  \lstinline|ConfigController| & Controller & \lstinline|ConfigModel|, \lstinline|ConfigRepository|, \lstinline|PluginApplicationService| & UI de configuración y plugins \\
+  \hline
+  \lstinline|BuildController| & Controller & \lstinline|ConfigModel|, \lstinline|TerminalController|, launcher de emuladores & Compilar/ejecutar \\
+  \hline
+  \lstinline|EditorModel| & Model & \lstinline|java.nio.file| & Estado de archivos abiertos/contenido \\
+  \hline
+  \lstinline|ConfigModel| & Model & \lstinline|Properties| (en memoria) & Estado de configuración + conversión a/from properties \\
+  \hline
+    \makecell{\lstinline|ProjectExplorer|\\\lstinline|Model|} & Model & filesystem & Crear/borrar archivos y carpetas \\
+  \hline
+  \makecell{\lstinline|PropertiesConfig|\\\lstinline|Repository|} & Repository & \lstinline|.properties| en disco & Persistencia de configuración \\
+  \hline
+  \makecell{\lstinline|ProjectSearch|\\\lstinline|Service|} & Service & filesystem & Búsqueda textual por proyecto \\
+  \hline
+  \makecell{\lstinline|TextSearch|\\\lstinline|Service|} & Service & texto en memoria & Búsqueda local (next/ prev/all, regex) \\
+  \hline
+  \makecell{\lstinline|Compilation|\\\lstinline|Diagnostic|\\\lstinline|ParserService|}& Service & regex + resolver de rutas & Parseo de errores/warnings/líneas \\
+  \hline
+  \makecell{\lstinline|PluginApplication|\\\lstinline|Service|} & Service & \lstinline|PluginManager| + filesystem & Instalar/habilitar /deshabilitar/recargar plugins \\
+  \hline
+  \end{tabularx} 
+\caption{Matriz de relaciones y responsabilidades de clases clave}
+\label{tab:matriz_relaciones_clave}
+\end{table} 
+
+\clearpage
+
+
+\section{Arquitectura por capas}
+
+La arquitectura del sistema se ha diseñado siguiendo un enfoque por capas basado en el patrón MVC ampliado, con el objetivo de separar responsabilidades, reducir el acoplamiento y facilitar la extensibilidad del IDE. Esta estructura no se limita a dividir la interfaz, la lógica y el estado, sino que introduce una capa intermedia de servicios y adaptadores que desacoplan la lógica de negocio de la infraestructura y de la propia interfaz de usuario. 
+
+Este diseño permite que vistas como la pantalla principal, el diálogo de configuración o el explorador de proyectos sean totalmente reemplazables sin afectar al resto del sistema. Por su parte, la capa de control actúa como intermediaria, donde un controlador principal orquestador delega tareas en controladores especializados por funcionalidad (edición, búsqueda, compilación, etc.) para evitar la saturación de componentes y mejorar la modularidad. El estado interno se encapsula en la capa de modelo, la cual gestiona elementos como el contenido de archivos y la configuración de forma independiente de la interfaz gráfica para facilitar su testeo. Finalmente, la capa de servicios centraliza la lógica de negocio compleja, garantizando así una arquitectura robusta, escalable y fácil de mantener.
+
+\subsection{Flujo de ejecución}
+
+El flujo de ejecución de la aplicación sigue una secuencia bien definida. En primer lugar, la vista genera un evento que es capturado por un controlador. Este controlador interpreta la acción del usuario y, en caso necesario, delega la operación en la capa de servicios o modifica el estado del modelo.
+
+Una vez procesada la operación, el resultado es devuelto al controlador, que actualiza la vista en consecuencia. Este flujo garantiza una separación clara entre entrada de usuario, lógica de aplicación y representación visual.
+
+En la siguiente figura \ref{fig:compilation-sequence_example} podemos observar un pequeño esquema del flujo de ejecución de una petición por parte del usuario, desde la vista hasta la capa de servicios y de vuelta a la vista:
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=8cm]{../imagenes/ejemplos/MVC_Ampliado.jpg}
+    \caption{Ejemplo de flujo de ejecución para una petición de usuario en una arquitectura MVC ampliada}
+    \label{fig:compilation-sequence_example}
+\end{figure}
+
+\clearpage
+
+\subsection{Aplicación al proceso de compilación}
+
+El proceso de compilación ilustra claramente la interacción entre capas. El controlador encargado de la compilación delega la ejecución en un servicio que invoca herramientas externas. La salida generada es posteriormente analizada por un servicio de parseo, que extrae información relevante sobre errores y advertencias.
+
+Finalmente, el controlador utiliza esta información para actualizar la interfaz de usuario, mostrando los resultados de forma estructurada.
+
+En todo momento se ha buscado mantener una arquitectura coherente con el patrón MVC, pero adaptada a las necesidades específicas de un entorno de desarrollo integrado.
+
+En la siguiente figura \ref{fig:compilation-sequence} se muestra un pequeño esquema que detalla el flujo de ejecución durante el proceso de compilación, desde la acción del usuario hasta la actualización de la interfaz con los resultados obtenidos:
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=14cm]{../imagenes/ejemplos/Proceso_compilacion.jpg}
+    \caption{Flujo de compilación}
+    \label{fig:compilation-sequence}
+\end{figure}
+
+\clearpage
+
+
+\section{Diseño de las pantallas}
+
+
+A continuación se describen las pantallas principales del IDE, detallando su diseño, los elementos que las componen y su funcionalidad. Estas pantallas han sido diseñadas para ofrecer una experiencia de usuario intuitiva y eficiente, facilitando el desarrollo de software para plataformas de 8 bits.
+
+Para el diseño inicial de las interfaces de usuario se ha empleado la herramienta Pencil Project \cite{pencil_project}, que ha permitido realizar prototipos y bocetos de las distintas pantallas del sistema de forma rápida, visual e intuitiva. Mediante el uso de sus bibliotecas de componentes y su sistema de edición basado en arrastrar y soltar, se han podido definir con claridad la estructura de cada vista, la disposición de los elementos y la organización general de la interfaz.
+
+Asimismo, el uso de esta herramienta ha facilitado la representación de la navegación entre pantallas y la validación temprana del diseño, permitiendo detectar posibles mejoras en la experiencia de usuario antes de comenzar la fase de implementación. De este modo, los prototipos generados han servido como referencia durante el desarrollo, contribuyendo a mantener una mayor coherencia visual y funcional en la aplicación final.
+
+En la siguiente figura \ref{fig:config-prototype} se muestra una captura del entorno de trabajo de Pencil Project, y se expone un ejemplo de como se han prototipado las pantallas para este proyecto.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=14cm]{../imagenes/herramientas_externas/Captura de pantalla 2026-04-24 161756.jpg}
+    \caption{Prototipo de la pantalla de configuración realizado con Pencil Project}
+    \label{fig:config-prototype}
+\end{figure}
+
+\clearpage 
+
+\subsection{Pantalla de Configuración}
+
+La pantalla de configuración permite al usuario gestionar las preferencias del IDE, incluyendo la selección de toolchains, emuladores, idioma de la interfaz y opciones de compilación. Esta pantalla se ha diseñado con una estructura clara y organizada, utilizando pestañas para agrupar las diferentes categorías de configuración. Esto facilita la navegación y permite al usuario encontrar rápidamente las opciones que desea modificar.
+
+Por último, cabría destacar que esta pantalla actúa como un punto centralizado de gestión, garantizando que todos los parámetros relevantes del sistema puedan modificarse desde un único lugar, lo que contribuye a mantener la coherencia en el funcionamiento general del IDE.
+
+\subsubsection{Pantalla de configuración de idioma}
+
+El IDE, está previsto que tenga la interfaz localizada al idioma del usuario, al menos en inglés y español por el momento. La sección de configuración de idioma permite al usuario seleccionar el idioma de la interfaz gráfica. Para ello, se han definido archivos de propiedades específicos para cada idioma, que contienen las traducciones de los textos utilizados en la aplicación. La selección del idioma se realiza mediante un menú desplegable, y el cambio se aplica dinámicamente sin necesidad de reiniciar la aplicación.
+
+A continuación se presenta el diseño del subapartado de configuración de idioma \ref{fig:config-idioma}, dentro de la pantalla de configuración:
+
+\begin{figure}[!htb]
+    \centering         
+    \includegraphics[width=8cm]{../imagenes/disenno/idioma.png}
+    \caption{Diseño del subapartado de configuración de idioma}
+    \label{fig:config-idioma}
+\end{figure}
+
+
+La pantalla se preve que tenga un botón de guardado y dos combobox, uno para seleccionar el idioma de la interfaz y otro para seleccionar el idioma de los readmes y documentación cuando selecciona un proyecto a partir de un archeotipo o plantilla. 
+
+
+\clearpage 
+
+\subsubsection{Pantalla de configuración de plugins}
+
+La sección de configuración de plugins permite al usuario gestionar las extensiones instaladas en el IDE. Desde esta pantalla, el usuario puede habilitar o deshabilitar plugins, así como instalar nuevos desde un repositorio externo o desde un archivo local. La interfaz se ha diseñado para mostrar una lista clara de los plugins disponibles, junto con su estado actual y opciones de gestión. 
+
+A continuación se muestra el diseño del subapartado de configuración de plugins \ref{fig:config-plugins}, dentro de la pantalla de configuración:
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=10cm]{../imagenes/disenno/plugins.png}
+    \caption{Diseño del subapartado de configuración de plugins}
+    \label{fig:config-plugins}
+\end{figure}
+
+Para facilitar la usabilidad de este tab, se han ditribuido los lelementos en pantalla en tres secciones claramente diferenciadas: 
+
+\begin{itemize}
+    \item \textbf{Sección superior:} Muestra la lista de plugins instalados, con su estado y opciones de gestión. A la derecha de este listado se han incluido los botones necesarios para la gestión de los plugins, como habilitar, instalar desde una carpeta local, deshabilitar o eliminar.
+    \item \textbf{Sección central:} En esta sección, solo tenemos un campo de texto y un botón. El campo de texto continene la URL del repositorio de plugins, y el botón permite cargar los plugins disponibles en dicho repositorio. Por defecto, el campo de texto se inicializa con la URL del repositorio oficial de plugins del IDE (https://github.com/ginjol83/plugins-repo/blob/main/plugins.json), pero el usuario puede modificarlo para cargar plugins desde otras fuentes. Esta sección se ha diseñado para facilitar la instalación de nuevos plugins desde fuentes externas, proporcionando una forma rápida y sencilla de ampliar la funcionalidad del IDE.
+    \item \textbf{Sección inferior:} Contiene el listado de plugins existente en el repositorio remoto ylos controles para instalar o actualizar nuevos plugins desde dicho repositorio.
+\end{itemize}
+
+\clearpage 
+
+
+\subsubsection{Pantalla de configuración de opciones de compilación}
+
+La sección de configuración de opciones de compilación permite al usuario definir los parámetros específicos para cada toolchain soportado por el IDE. Esto incluye la selección de perfiles de compilación predefinidos para plataformas como Game Boy, Amstrad CPC y ZX Spectrum, así como la posibilidad de utilizar Makefiles personalizados para proyectos más avanzados.
+
+A continuación se muestra el diseño del subapartado de configuración de opciones de compilación \ref{fig:config-compilacion}, dentro de la pantalla de configuración:
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/opciones_compilador.png}
+    \caption{Diseño del subapartado de configuración de opciones de compilación}
+    \label{fig:config-compilacion}
+\end{figure}
+
+También se ha incluido un campo de texto para definir un umbral de confianza, que se utiliza cuando se abre un proyecto o se crea uno nuevo, el IDE analiza los archivos del proyecto y muestra una advertencia si detecta que alguno de los archivos contiene código para una o otra plataforma objetivo, pero no se ha seleccionado el perfil de compilación correspondiente. 
+
+Este umbral de confianza se expresa como un porcentaje, y se utiliza para determinar si el proyecto es lo suficientemente similar a un perfil de compilación específico como para mostrar la advertencia. Por ejemplo, si el umbral se establece en un 80\%, el IDE mostrará una advertencia si detecta que al menos el 80\% de los archivos del proyecto contienen código que coincide con un perfil de compilación específico, pero ese perfil no está seleccionado en la configuración del proyecto. Esto ayuda a los usuarios a asegurarse de que han seleccionado el perfil de compilación correcto para su proyecto, evitando posibles problemas de compilación o ejecución debido a configuraciones incorrectas.
+
+A su vez se añade un checkbox para aplicar este umbral al abrir un proyecto o solo al crear uno nuevo. 
+
+\clearpage 
+
+\subsubsection{Tab de perfil de compilación para GBDK - Game Boy}
+
+La sección de configuración de opciones de compilación incluye un tab específico para la configuración de perfiles de compilación orientados a la plataforma Game Boy utilizando el toolchain GBDK. En este tab, el usuario puede seleccionar entre diferentes perfiles predefinidos que optimizan la compilación para el hardware de Game Boy.
+
+A continuación se muestra el diseño del tab de perfil de compilación para GBDK - Game Boy \ref{fig:config-gbdk-gameboy}, dentro de la sección de configuración de opciones de compilación:   
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/perfil_gbdk.png}
+    \caption{Diseño del tab de perfil de compilación para GBDK - Game Boy}
+    \label{fig:config-gbdk-gameboy}
+\end{figure}
+
+Los elementos de este tab dentro de la configuración de compilación hacen referencia a algunas particularidades de la plataforma de desarrollo GBDK enfocada al desarrollo de juegos para Game Boy.
+
+Básicamente se han incluido campos para facilitar el paso de parametros al compilador SDCC, que es el compilador utilizado por GBDK como backend. Estos parametros permiten configurar aspectos como la optimización del código, la inclusión de rutas adicionales para cabeceras o defines personalizados, entre otros.
+ 
+
+\clearpage 
+
+A continuación se describen brevemente cada uno de los elementos presentes en este tab de configuración, explicando su función y relevancia:
+
+\begin{itemize}
+    \item \textbf{Ruta al binario de GBDK:} Campo destinado a definir la ubicación del ejecutable de GBDK. Esta configuración resulta imprescindible para que el entorno pueda invocar correctamente el compilador y el resto de herramientas asociadas durante el proceso de construcción del proyecto.
+
+    \item \textbf{Nivel de optimización:} Selector que determina el grado de optimización aplicado en la compilación. Dado que GBDK emplea como backend el compilador \textit{SDCC}, se dispone de varios niveles definidos en su documentación oficial \cite{sdcc_manual} (-O1, -O2, -O3 y -Os), cada uno orientado a distintos compromisos entre rendimiento y tamaño del código generado.
+
+    \item \textbf{Optimización orientada a tamaño:} Opción que prioriza la reducción del tamaño del binario resultante. Este aspecto adquiere especial relevancia en plataformas con recursos limitados, como Game Boy, donde la memoria disponible condiciona directamente el diseño del software. Esta opción hace uso del parametro --opt-code-size que podemos encontrar en la sección coding guidelines dentro de la documentación de GBDK \cite{gbdk_coding_guidelines}, que se orienta a mejorar la eficiencia del código generado.
+
+    \item \textbf{Optimización orientada a velocidad:} Alternativa enfocada a mejorar el rendimiento en tiempo de ejecución, incluso a costa de incrementar el tamaño del código generado.  Esta opción hace uso del parametro --opt-code-speed que podemos encontrar en la sección coding guidelines dentro de la documentación de GBDK \cite{gbdk_coding_guidelines}, que se orienta a mejorar la eficiencia del código generado, incluso a costa de incrementar su tamaño.
+
+    \item \textbf{Defines personalizados:} Espacio para la definición de macros de preprocesador adicionales. Su uso facilita la parametrización del proyecto y la activación de funcionalidades específicas en tiempo de compilación.
+
+    \item \textbf{Rutas de inclusión adicionales:} Permite incorporar directorios extra de cabeceras, lo que resulta útil en proyectos que dependen de bibliotecas externas o presentan una organización modular del código.
+
+    \item \textbf{Argumentos adicionales:} Campo genérico destinado a introducir opciones avanzadas del compilador. Proporciona un mecanismo flexible para extender la configuración estándar y adaptarla a necesidades particulares no contempladas explícitamente en la interfaz.
+\end{itemize}
+\clearpage 
+
+\subsubsection{Tab de perfil de compilación para Z88DK - Amstrad CPC}
+
+La sección de configuración de opciones de compilación también incluye un tab específico para la configuración de perfiles de compilación orientados a la plataforma Amstrad CPC utilizando el toolchain Z88DK. En este tab, el usuario puede seleccionar entre diferentes perfiles predefinidos que optimizan la compilación para el hardware del Amstrad CPC.
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/perfil_z88dk_amstrad_cpc.png}
+    \caption{Diseño del tab de perfil de compilación para Z88DK - Amstrad CPC}
+    \label{fig:config-z88dk-amstrad}
+\end{figure}
+
+A continuación se describen brevemente cada uno de los elementos presentes en este tab de configuración, explicando su función y relevancia:
+
+\begin{itemize}
+    \item \textbf{Ruta al binario de Z88DK:} Campo destinado a definir la ubicación del ejecutable de Z88DK. Esta configuración resulta imprescindible para que el entorno pueda invocar correctamente el compilador y el resto de herramientas asociadas durante el proceso de construcción del proyecto.
+
+    \item \textbf{Opción -clib:} Selector que sirve para seleccionar la implementación de la librería estándar de C que se va a enlazar con tu programa durante la compilación, algunas de sus posibles opciones incluyen \textit{new}, \textit{classic} \textit{sdcc iy} y \textit{sdcc ix}. Su utilidad radica en que en Z88DK no existe una única libc “genérica”, sino varias implementaciones adaptadas a distintos objetivos (rendimiento, tamaño, compatibilidad…).
+
+    \item \textbf{Check parametro CRTORG CODE=32768:} A veces abreviado como CRT ORG CODE o escrito en documentación como ``CRT origin'' \cite{z88dk_crt}. Esta opción se utiliza para definir la dirección de memoria donde comenzará el código ejecutable del programa, este parametro fuerza a que se inicie en la posición de memoria 32768.
+
+    \item \textbf{Target de compilación:} Selector que permite elegir el perfil de compilación específico para la plataforma Amstrad CPC. Cada perfil predefinido optimiza la compilación para diferentes configuraciones de hardware o requisitos de rendimiento, facilitando así la adaptación del proyecto a las características particulares del Amstrad CPC.
+
+    \item \textbf{Check parametro -create-app:} se usa para generar automáticamente un ``Application Package'' (AP), es decir, un paquete listo para ejecutar en un entorno o emulador concreto.
+
+    \item \textbf{Defines personalizados:} Espacio para la definición de macros de preprocesador adicionales. Su uso facilita la parametrización del proyecto y la activación de funcionalidades específicas en tiempo de compilación.
+
+    \item \textbf{Rutas de inclusión adicionales:} Permite incorporar directorios extra de cabeceras, lo que resulta útil en proyectos que dependen de bibliotecas externas o presentan una organización modular del código.
+
+    \item \textbf{Argumentos adicionales:} Campo genérico destinado a introducir opciones avanzadas del compilador. Proporciona un mecanismo flexible para extender la configuración estándar y adaptarla a necesidades particulares no contempladas explícitamente en la interfaz.
+\end{itemize}
+
+\clearpage 
+
+\subsubsection{Tab de perfil de compilación para Z88DK - ZX Spectrum}
+
+La sección de configuración de opciones de compilación incluye un tab específico para la configuración de perfiles de compilación orientados a la plataforma ZX Spectrum utilizando el toolchain Z88DK. En este tab, el usuario puede seleccionar entre diferentes perfiles predefinidos que optimizan la compilación para el hardware del ZX Spectrum, figura \ref{fig:config-z88dk-spectrum}. 
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/perfil_z88dk_zx_spectrum.png}
+    \caption{Diseño del tab de perfil de compilación para Z88DK - ZX Spectrum}
+    \label{fig:config-z88dk-spectrum}
+\end{figure}
+
+A continuación se describen brevemente cada uno de los elementos presentes en este tab de configuración, explicando su función y relevancia:
+
+\begin{itemize}
+    \item \textbf{Ruta al binario de Z88DK:} Campo destinado a definir la ubicación del ejecutable de Z88DK. (Igual que en CPC) Esta configuración resulta imprescindible para que el entorno pueda invocar correctamente el compilador y el resto de herramientas asociadas durante el proceso de construcción del proyecto.
+
+    \item \textbf{Opción -clib:} Selector que sirve para seleccionar la implementación de la librería estándar de C que se va a enlazar con tu programa durante la compilación, (Igual que en CPC), algunas de sus posibles opciones incluyen \textit{new}, \textit{classic} \textit{sdcc iy} y \textit{sdcc ix}. Su utilidad radica en que en Z88DK no existe una única libc “genérica”, sino varias implementaciones adaptadas a distintos objetivos (rendimiento, tamaño, compatibilidad…).
+
+    \item \textbf{Check parametro CRTORG CODE=32768:} A veces abreviado como CRT ORG CODE o escrito en documentación como ``CRT origin'' \cite{z88dk_crt}. Esta opción se utiliza para definir la dirección de memoria donde comenzará el código ejecutable del programa, este parametro fuerza a que se inicie en la posición de memoria 32768.
+
+    \item \textbf{Target de compilación:} Selector que permite elegir el perfil de compilación específico para la plataforma ZX Spectrum. Cada perfil predefinido optimiza la compilación para diferentes configuraciones de hardware o requisitos de rendimiento, facilitando así la adaptación del proyecto a las características particulares del ZX Spectrum. (Igual que en CPC)
+
+    \item \textbf{Check parametro -create-app:} se usa para generar automáticamente un ``Application Package'' (AP), es decir, un paquete listo para ejecutar en un entorno o emulador concreto. (Igual que en CPC)
+
+    \item \textbf{Defines personalizados:} Espacio para la definición de macros de preprocesador adicionales. Su uso facilita la parametrización del proyecto y la activación de funcionalidades específicas en tiempo de compilación.
+
+    \item \textbf{Rutas de inclusión adicionales:} Permite incorporar directorios extra de cabeceras, lo que resulta útil en proyectos que dependen de bibliotecas externas o presentan una organización modular del código.
+
+    \item \textbf{Argumentos adicionales:} Campo genérico destinado a introducir opciones avanzadas del compilador. Proporciona un mecanismo flexible para extender la configuración estándar y adaptarla a necesidades particulares no contempladas explícitamente en la interfaz.
+\end{itemize}
+
+\clearpage
+
+
+
+\subsubsection{Tab de perfil de compilación con Makefiles personalizados}
+
+La sección de configuración de opciones de compilación también incluye un tab específico para la configuración de perfiles de compilación utilizando Makefiles personalizados. Este tab permite a los usuarios más avanzados definir sus propios comandos de compilación y opciones, proporcionando una flexibilidad total para proyectos que requieren configuraciones específicas o no estándar. En este tab, el usuario puede especificar la ruta al Makefile, los objetivos de compilación y cualquier variable de entorno necesaria para la ejecución del proceso de compilación.
+
+Un Makefile es un archivo de texto utilizado por la herramienta make que define un conjunto de reglas para automatizar la construcción de software. Estas reglas especifican objetivos, dependencias y comandos necesarios para compilar y enlazar un programa. Gracias a este enfoque, make es capaz de determinar qué partes del proyecto necesitan ser recompiladas, optimizando así el proceso de desarrollo y reduciendo tiempos de compilación.
+
+
+A continuación se muestra el diseño del tab de perfil de compilación para Makefiles personalizados \ref{fig:config-makefile}, dentro de la sección de configuración de opciones de compilación:
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/perfil_compilacin_usando_makefile.png}
+    \caption{Diseño del tab de perfil de compilación con Makefiles personalizados}
+    \label{fig:config-makefile}
+\end{figure}
+
+En el desarrollo de software para sistemas de 8 bits, herramientas como make permiten automatizar el proceso completo de construcción del software, incluyendo la compilación del código fuente, la conversión de recursos gráficos y la generación de la ROM final. Este enfoque resulta especialmente útil al trabajar con toolchains como GBDK o Z88DK, donde el proceso de construcción implica múltiples pasos. Además, make optimiza el tiempo de desarrollo al recompilar únicamente los componentes modificados.
+
+
+A continuación se describen brevemente cada uno de los elementos presentes en este tab de configuración, explicando su función y relevancia:
+
+\begin{itemize}
+        \item \textbf{Ejecutable make:} Especifica la ruta al ejecutable de make que se utilizará para la construcción del proyecto (por default mingw32-make).
+        \item \textbf{Target para compilar :} Define el objetivo de compilación que se ejecutará al invocar make (vacío = target por defecto).
+        \item \textbf{Target para ejecutar :} Indica el objetivo que se utilizará para ejecutar el proyecto después de la compilación (por default run).
+        \item \textbf{Argumentos extra:} Campo genérico destinado a introducir opciones avanzadas del compilador. Proporciona un mecanismo flexible para extender la configuración estándar y adaptarla a necesidades particulares no contempladas explícitamente en la interfaz.
+\end{itemize}
+
+En la siguiente figura \ref{fig:example-makefile} se muestra un ejemplo de Makefile personalizado para un proyecto de desarrollo de un juego para ZX Spectrum utilizando Z88DK, realizado usando el IDE:
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/herramientas_externas/ejemplo_makefile.jpg}
+    \caption{Ejemplo de Makefile personalizado para un proyecto de desarrollo de un juego para ZX Spectrum utilizando Z88DK}
+    \label{fig:example-makefile}
+\end{figure}
+
+\clearpage
+
+\subsection{Pantalla principal del IDE}
+
+La pantalla principal del IDE se ha diseñado para ofrecer una experiencia de usuario intuitiva y eficiente, integrando las funcionalidades esenciales para el desarrollo de software en plataformas de 8 bits. Esta pantalla actúa como el centro neurálgico del entorno de desarrollo, proporcionando acceso rápido a las herramientas y recursos necesarios para la edición, compilación y gestión de proyectos. 
+
+La interfaz se ha organizado de manera clara y estructurada, con un editor de código central que permite trabajar con múltiples archivos a través de pestañas, un explorador de proyectos lateral para facilitar la navegación entre los archivos del proyecto, y una terminal integrada en la parte inferior para mostrar la salida de compilación, errores y otros mensajes relevantes. Además, se han incluido menús y barras de herramientas que ofrecen acceso directo a las funciones más utilizadas, como la compilación, ejecución y depuración de proyectos, así como opciones de configuración. 
+
+En conjunto, como se puede observar en la Figura \ref{fig:main-window}, el diseño de la pantalla principal busca maximizar la productividad del usuario, proporcionando un entorno de trabajo accesible y adaptado a las necesidades específicas del desarrollo para plataformas de 8 bits.
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/main_window.png}
+    \caption{Diseño de la pantalla principal del IDE, con el editor de código, el explorador de proyectos y la terminal integrada}
+    \label{fig:main-window}
+\end{figure}
+
+\clearpage
+
+\subsubsection{Menús de la pantalla principal}
+
+El area de menús de la pantalla principal del IDE se ha diseñado para proporcionar un acceso rápido y organizado a las funciones más importantes del entorno de desarrollo. 
+
+Se han estructurado en categorías lógicas, como ``Archivo'', ``Editar'', ``Herramientas'' y ``Ayuda'', para facilitar la navegación y la localización de las opciones deseadas. Cada menú contiene submenús y opciones específicas que permiten al usuario realizar acciones como crear, abrir o guardar proyectos, configurar preferencias, ejecutar compilaciones o acceder a la documentación. 
+
+Como se puede observar en la Figura \ref{fig:menus-main-window}, el diseño de los menús busca ofrecer una experiencia de usuario fluida y accesible, permitiendo a los desarrolladores centrarse en su trabajo sin perder tiempo buscando las herramientas que necesitan.
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/zona_de_menus.png}
+    \caption{Diseño de los menús de la pantalla principal del IDE.}
+    \label{fig:menus-main-window}
+\end{figure}
+
+A continuación se describen brevemente las funciones principales de cada menú:
+
+\begin{itemize}
+    \item \textbf{Menu Archivo:} Es el menú principal que permite crear, abrir, guardar y cerrar proyectos, así como importar y exportar archivos entre otras funcionalidades.
+    \begin{itemize}
+        \item \textbf{Nuevo Proyecto:} Abre el dialogo de creación de un nuevo proyecto.
+        \item \textbf{Abrir Proyecto:} Abre un proyecto o archivo existente.
+        \item \textbf{Nuevo:} Crea un archivo nuevo.
+        \item \textbf{Abrir:} Abre un archivo existente.
+        \item \textbf{Guardar:} Guarda el archivo actual.
+        \item \textbf{Guardar Como:} Guarda el archivo actual con un nuevo nombre.
+        \item \textbf{Guardar Todo:} Guarda todos los archivos abiertos.
+        \item \textbf{Cerrar:} Cierra el archivo actual.
+        \item \textbf{Configuración:} Abre las opciones de configuración del IDE.
+        \item \textbf{Salir:} Cierra el IDE.
+    \end{itemize}
+    
+    \item \textbf{Menu Herramientas:} Proporciona herramientas básicas para la compilación y ejecución del proyecto activo.
+    \begin{itemize}
+        \item \textbf{Compilar:} Inicia el proceso de compilación del proyecto actual.
+        \item \textbf{Ejecutar:} Ejecuta el proyecto actual.
+    \end{itemize}
+    
+    \item \textbf{Menu Editar:} Ofrece opciones de edición de código, como deshacer, rehacer, cortar, copiar, pegar y buscar/ reemplazar texto. También incluye herramientas para navegar por el código, como ir a la definición o buscar referencias. Por norma general este menú en la mayoria de aplicaciones comerciales se situa al lado de Archivo, pero en este caso se ha decidido situarlo al lado de Herramientas para agruparlo con las opciones de gestión de proyectos y archivos.
+        \begin{itemize}
+        \item \textbf{Desacer:} Desacer la última acción realizada.
+        \item \textbf{Rehacer:} Rehacer la última acción deshecha.
+        \item \textbf{Cortar:} Función para cortar un texto seleccionado.
+        \item \textbf{Copiar:} Función para copiar un texto seleccionado.
+        \item \textbf{Pegar:} Función de pegado de texto copiado o cortado.
+        \item \textbf{Ir al archivo:} Agrega un nuevo archivo al proyecto.
+        \item \textbf{Buscar en archivo:} Herramientas de búsqueda en el archivo actual.
+        \item \textbf{Buscar en proyecto:} Herramientas de búsqueda en todo el proyecto.
+    \end{itemize}
+    \item \textbf{Menu Ayuda:} Contiene enlaces a la documentación y tutoriales, así como información sobre la versión del IDE y los créditos del proyecto.
+    \begin{itemize}
+        \item \textbf{Manual General:} Abre el manual de usuario del IDE.
+        \item \textbf{Manual desarrollo de Plugins:} Abre un manual para el desarrollo de plugins para el IDE, que incluye información sobre la arquitectura del sistema, las interfaces disponibles y ejemplos de código para facilitar la creación de extensiones personalizadas.
+        \item \textbf{Licencias de terceros:} Muestra las licencias de los componentes de terceros utilizados en el proyecto, cabe resaltar que el proyecto se ha desarrollado utilizando exclusivamente componentes con licencias permisivas, como MIT o Apache 2.0, para garantizar la máxima libertad de uso y distribución. En esta sección se proporciona información detallada sobre cada componente de terceros, incluyendo su nombre, versión, licencia y un enlace a su repositorio o página oficial. Esto permite a los usuarios conocer las dependencias del proyecto y cumplir con las obligaciones de atribución y licencia correspondientes.
+        \item \textbf{Creditos:} Muestra información sobre la versión del IDE y los créditos del proyecto
+    \end{itemize}
+
+\end{itemize}
+
+\clearpage
+
+\subsubsection{Barra de herramientas de la pantalla principal}
+
+La barra de herramientas de la pantalla principal del IDE o Toolbar, se ha diseñado para proporcionar un acceso rápido a las funciones más utilizadas, complementando los menús tradicionales. Contiene botones que permiten al usuario ejecutar acciones comunes como guardar archivos, deshacer cambios, compilar proyectos o ejecutar programas con un solo clic. Esta disposición visual facilita la identificación y el uso de las herramientas, mejorando la eficiencia y la experiencia general del usuario. Además, se han agrupado las funciones relacionadas para mantener una organización clara y coherente, lo que contribuye a un flujo de trabajo más fluido y productivo. 
+
+En conjunto, como se puede observar en la Figura \ref{fig:toolbar-main-window}, la barra de herramientas actúa como un complemento esencial a los menús, proporcionando una forma rápida y accesible de interactuar con las funcionalidades clave del IDE.
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/toolbar.png}
+    \caption{Diseño de la barra de herramientas de la pantalla principal del IDE.}
+    \label{fig:toolbar-main-window}
+\end{figure}
+
+\begin{itemize}
+
+    \item \faFolderPlus\ \textbf{Nuevo Proyecto:} Abre el dialogo de creación de un nuevo proyecto.
+    \item \faFolderOpen\ \textbf{Abrir Proyecto:} Abre un proyecto o archivo existente.
+    \item \faFile\ \textbf{Nuevo:} Crea un archivo nuevo.
+    \item \faSave\ \textbf{Guardar:} Guardar el archivo actual.
+    \item \faTimes\ \textbf{Cerrar:} Cierra el archivo actual.
+    \item \faUndo\ \textbf{Deshacer:} Desacer la última acción realizada.
+    \item \faRedo\ \textbf{Rehacer:} Rehacer la última acción deshecha.
+    \item \faSearch\ \textbf{Buscar en archivo:} Herramientas de búsqueda en el archivo actual.
+    \item \faSearchPlus\ \textbf{Buscar en proyecto:} Herramientas de búsqueda en todo el proyecto.
+    \item \faCut\ \textbf{Cortar:} Función para cortar un texto seleccionado.
+    \item \faCopy\ \textbf{Copiar:} Función para copiar un texto seleccionado.
+    \item \faPaste\ \textbf{Pegar:} Función de pegado de texto copiado o cortado.
+    \item \faHammer\ \textbf{Compilar:} Construcción y compilación del código fuente.
+    \item \faStop\ \textbf{Detener:} Detener la ejecución del código fuente.
+    \item \faPlay\ \textbf{Ejecutar:} Construcción, compilación y ejecución del código fuente.
+    \item \faCog\ \textbf{Configuración:} Acceso a preferencias y configuración.
+    \item \faQuestionCircle\ \textbf{Ayuda - Manual:} Abre este manual de usuario.
+\end{itemize}
+
+\subsubsection{Explorador de archivos de la pantalla principal}
+
+El explorador de archivos de la pantalla principal del IDE se ha diseñado para proporcionar una vista estructurada y accesible de los 
+archivos y carpetas del proyecto. Permite al usuario navegar rápidamente por la jerarquía del proyecto, abrir archivos para su edición y 
+realizar operaciones comunes como renombrar o eliminar archivos. 
+
+En la figura \ref{fig:file-explorer-main-window} se muestra el diseño del explorador de archivos, 
+que incluye una estructura de árbol para visualizar la jerarquía del proyecto, así como opciones contextuales para gestionar los archivos y 
+carpetas de manera eficiente.
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/explorador_de_archivos.png}
+    \caption{Diseño del explorador de archivos de la pantalla principal del IDE.}
+    \label{fig:file-explorer-main-window}
+\end{figure}
+
+Esta herramienta facilita la gestión del proyecto y mejora la eficiencia al permitir un acceso rápido a los recursos necesarios, contribuyendo a un flujo de trabajo más organizado y productivo, además se le ha diseñado un menú contextual con las funciones básicas para gestionar los archivos y carpetas así como la opción de ejecutar directamente una rom desde el explorador.
+
+En la parte superior del explorador de archivos se ha incluido una pequeña barra de herramientas que de momento solo esta previsto que incluya un botón para el refresco del arbol de archivos dado que no esta previsto que esta funcionalidad se implemente de forma automática.
+
+A continuación se describen las entradas del menu contextual del explorador de archivos:
+
+\begin{itemize}
+    \item \textbf{Nuevo Directorio:} Permite crear una nueva carpeta dentro del proyecto para organizar los archivos de manera estructurada.
+    \item \textbf{Nuevo Archivo:} Permite crear un nuevo archivo dentro del proyecto.
+    \item \textbf{Eliminar:} Permite eliminar archivos o carpetas seleccionadas.
+    \item \textbf{Ejecutar ROM en el emulador:} Permite ejecutar una ROM directamente desde el explorador de archivos.
+	\item \textbf{Abrir directorio en windows:} Permite abrir el directorio seleccionado en el explorador de archivos de Windows.
+\end{itemize}
+
+
+\subsubsection{Editor de código de la pantalla principal}
+
+
+El editor de código de la pantalla principal del IDE se ha diseñado para proporcionar un area de trabajo eficiente y cómoda para la edición de código fuente (ver figura \ref{fig:code-editor-main-window}). Cuenta con características como resaltado de sintaxis, numeración de líneas y soporte para múltiples pestañas, lo que facilita la gestión de varios archivos al mismo tiempo. 
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/editor_de_cdigo.png}
+    \caption{Diseño del editor de código de la pantalla principal del IDE.}
+    \label{fig:code-editor-main-window}
+\end{figure}
+
+
+\clearpage
+\subsubsection{Zona de consola y monitoreo de la pantalla principal}
+
+La zona de consola y monitoreo situada en la parte inferior de la pantalla principal del IDE se ha diseñado para mostrar la salida de compilación, errores, advertencias y otros mensajes relevantes durante el proceso de desarrollo. Esta área proporciona una vista clara y organizada de la información generada por el sistema, permitiendo al usuario identificar rápidamente cualquier problema o resultado de las operaciones realizadas (ver figura \ref{fig:console-monitoring-main-window}). 
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/zona_consola_y_monitoreo.png}
+    \caption{Diseño de la zona de consola y monitoreo de la pantalla principal del IDE.}
+    \label{fig:console-monitoring-main-window}
+\end{figure}
+
+Cuenta con pestañas para organizar diferentes tipos de mensajes, como la salida de compilación, errores y advertencias. Estas pestañas disponen de resaltado de texto en función de si se trata de advertencias (warnings) o errores, lo que facilita su identificación.
+
+\begin{itemize}
+\item \textbf{Pestaña de consola:} Muestra la salida estándar del proceso de compilación, incluyendo mensajes informativos, advertencias y errores. Esta pestaña se actualiza en tiempo real durante la compilación, lo que permite al usuario seguir el progreso y detectar cualquier problema que pueda surgir.
+\item \textbf{Pestaña de monitoreo:} Proporciona información detallada sobre el estado del sistema y la actividad del usuario.
+\end{itemize}
+
+La interfaz incorpora dos botones de control (uno destinado a limpiar y otro a copiar los mensajes) ubicados en la esquina superior derecha tanto de la consola como del monitor.
+\clearpage
+
+\subsubsection{Barra de estado de la pantalla principal}
+
+La barra de estado situada en la parte inferior de la pantalla principal del IDE se ha diseñado para mostrar información relevante sobre el estado del sistema o el progreso de las operaciones (ver figura \ref{fig:status-bar-main-window}). 
+
+\begin{figure}[!htb]
+    \centering 
+    \includegraphics[width=14cm]{../imagenes/disenno/barra_de_estado.png}
+    \caption{Diseño de la barra de estado de la pantalla principal del IDE.}
+    \label{fig:status-bar-main-window}
+\end{figure}
+
+\end{document}

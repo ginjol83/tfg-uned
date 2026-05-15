@@ -1,134 +1,142 @@
 % Comandos para crear la portada y la primera página del PFG
-%% Título del PFG
+%% Título del PFG 
 \newcommand{\PFGtitulo}{IDE para desarrollo de aplicaciones para máquinas de 8 bits con C}
 %% Título corto, para mostrar en el encabezado de las páginas pares. Por defecto se pone el título, pero, si es muy largo, puede acortarse aquí
 \newcommand{\PFGtitulocorto}{\PFGtitulo}
-%% Autor/a y directores/as del PFG
+%% Autor/a y directores/as del PFG 
 \newcommand{\PFGautor}{Andrés Giménez Perales}
 \newcommand{\PFGdirector}{Jose Manuel Diaz Martinez}
 %% Descomentar y rellenar la siguiente línea si hay codirector/a en el PFG
 %\newcommand{\PFGcodirector}{Codirector/a del PFG}
-%% Grado. A elegir entre:
-%% Ingeniería Informática 
-%% Ingeniería en Tecnologías de la Información
+%% Grado. A elegir entre:  
+%% Ingeniería Informática     
+%% Ingeniería en Tecnologías de la Información    
 \newcommand{\PFGgrado}{Ingeniería Informática}
 %% Modalidad. A elegir entre:
-%% genérica 
+%% genérica  
 %% específica
-\newcommand{\PFGmodalidad}{Específica}
+\newcommand{\PFGmodalidad}{Específica} 
 %% Curso académico en formato 20xx/20xx+1. Por ejemplo 2022/2023
 \newcommand{\PFGcursoacademico}{2025/2026}
-%% Convocatoria. A elegir entre:
+%% Convocatoria. A elegir entre:  
 %% junio
-%% septiembre
-%% diciembre
+%% septiembre   
+%% diciembre      
 \newcommand{\PFGconvocatoria}{Junio}
 %% Fecha de lectura (si no se sabe el día concreto, poner mes y año}
 \newcommand{\PFGfechadefensa}{Junio 2026}
-
-
-\documentclass[12pt,twoside]{book}
+ 
+  
+\documentclass[12pt,twoside]{book}  
 \usepackage{graphicx}
-\usepackage{fontawesome5}
+\usepackage{fontawesome5}     
 \usepackage[utf8]{inputenc}
 \usepackage[papersize={210mm,297mm},tmargin=25mm,bmargin=25mm,lmargin=20mm,rmargin=20mm]{geometry}
-% Paquete para tablas profesionales
-\usepackage{booktabs}
 
+% Paquetes para tablas profesionales 
+\usepackage{booktabs}  
+\usepackage{tabularx}  
+\usepackage{makecell}
+    
 % No indentar los párrafos y separarlos 1cm
 \setlength\parindent{0cm}
 \setlength\parskip{1em}
-
+ 
 % Para tener los elementos de texto en español
-\usepackage[spanish]{babel}
-% Para poder resaltar un texto en amarillo con \hl{}
-\usepackage{soul}
-% Definición de colores
-\usepackage{xcolor}
-\definecolor{links}{rgb}{0.35, 0.4, 0.35}
-\definecolor{urls}{rgb}{0,0,1}
-\definecolor{cites}{rgb}{0.8,0,0}
-\definecolor{gray20}{gray}{0.20}
-
-% Hiperreferencias
+\usepackage[spanish]{babel} 
+% Para poder resaltar un texto en amarillo con \hl{}   
+\usepackage{soul}  
+% Definición de colores  
+\usepackage{xcolor}        
+\definecolor{links}{rgb}{0.35, 0.4, 0.35} 
+\definecolor{urls}{rgb}{0,0,1}  
+\definecolor{cites}{rgb}{0.8,0,0}                    
+\definecolor{gray20}{gray}{0.20} 
+   
+% Hiperreferencias     
 \usepackage[hyphens]{url}
-\usepackage{hyperref}
+\usepackage{hyperref}  
 \hypersetup{
 	colorlinks = true,
-	linkcolor = links,
-	urlcolor = urls,
-	citecolor = cites
-}
+	linkcolor = links, 
+	urlcolor = urls,   
+	citecolor = cites 
+} 
 
+% Para que el índice de contenidos incluya hasta subsubsecciones
+\setcounter{tocdepth}{3}
 
 % Formato de los listados
-\usepackage{listings}
+\usepackage{listings} 
 \lstloadlanguages{C,C++,Haskell,HTML,Java,PHP,Python}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5} 
+\definecolor{codepurple}{rgb}{0.58,0,0.82} 
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92} 
 
 \lstdefinestyle{mystyle}{
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen}, 
+    keywordstyle=\color{blue},   
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
-    backgroundcolor=\color{backcolour}, % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
-	basicstyle=\footnotesize\ttfamily\color{black},        % the size of the fonts that are used for the code
+    backgroundcolor=\color{backcolour}, % elegir el color de fondo; debes agregar \usepackage{color} o \usepackage{xcolor}; debe ser el último argumento
+	basicstyle=\footnotesize\ttfamily\color{black},        % el tamaño de las fuentes que se usan para el código
 	belowcaptionskip=1\baselineskip,
-	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
-	breaklines=true,                 % sets automatic line breaking
-	captionpos=b,                    % sets the caption-position to bottom
-	deletekeywords={...},            % if you want to delete keywords from the given language
-	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
-	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
-	firstnumber=1,                % start line enumeration with line 1000
+	breakatwhitespace=false,         % establece si los saltos automáticos deben ocurrir solo en espacios en blanco
+	breaklines=true,                 % establece el salto de línea automático
+	captionpos=b,                    % establece la posición de la leyenda en la parte inferior
+	deletekeywords={...},            % si quieres eliminar palabras clave del lenguaje dado
+	escapeinside={\%*}{*)},          % si quieres agregar LaTeX dentro de tu código
+	extendedchars=true,              % permite usar caracteres no ASCII; solo para codificaciones de 8 bits, no funciona con UTF-8
+	firstnumber=1,                	 % iniciar la enumeración de líneas con el número 1
 	frame=single,	                   
 	%identifierstyle=\color{blue!50!black},
-	keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
-	%language=C,                 % the language of the code
-	%morekeywords={*,...},            % if you want to add more keywords to the set
-	numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
-	numbersep=10pt,                   % how far the line-numbers are from the code
-	numberstyle=\tiny\color{gray}, % the style that is used for the line-numbers
-	rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+	keepspaces=true,                 % mantener los espacios en el texto, útil para mantener la indentación del código (posiblemente necesita columns=flexible)
+	language=C,                 	 % el lenguaje del código
+	%morekeywords={*,...},           % Si quieres añadir más palabras clave al lenguaje, hazlo aquí
+	numbers=left,                    % donde colocar los números de línea; valores posibles son (none, left, right)
+	numbersep=10pt,                  % qué tan lejos están los números de línea del código
+	numberstyle=\tiny\color{gray}, 	 % El estilo que se usa para los números de línea
+	rulecolor=\color{black},         % si no se establece, el color del marco puede cambiar en los saltos de línea dentro de texto no negro (por ejemplo, comentarios (verde aquí))
 	morecomment=[n]{(*}{*)},
 	morecomment=[n][\color{magenta}]{\%I}{\ },
 	morecomment=[n][\color{magenta}]{\%Q}{\ },
-	showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
-	showstringspaces=false,          % underline spaces within strings only
-	showtabs=false,                  % show tabs within strings adding particular underscores
-	stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
-	tabsize=2,	                   % sets default tabsize to 2 spaces
+	showspaces=false,                % mostrar espacios en todas partes agregando guiones bajos particulares; anula 'showstringspaces'
+	showstringspaces=false,          % subrayar espacios dentro de cadenas solamente
+	showtabs=false,                  % mostrar tabulaciones dentro de cadenas agregando guiones bajos particulares
+	stepnumber=1,                    % el paso entre dos números de línea. Si es 1, cada línea será numerada
+	tabsize=2,	                     % establece el tamaño de tabulación predeterminado a 2 espacios
 	title=\lstname,
-	xleftmargin=1.5cm,
+	xleftmargin=1.5cm, 
 }
 \lstset{style=mystyle}
-
-
-
-
+% Permitir acentos y eñes en listings y \lstinline
+\lstset{
+	literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+					 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+					 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+}
+ 
 % Añadir ficheros externos
 \usepackage{subfiles}
 % Soporte para anexos
 \usepackage{appendix}
-% Paquetes para figuras
+% Paquetes para figuras 
 \usepackage{caption}
-\usepackage{subcaption}
-% Para las tablas
+\usepackage{subcaption} 
+% Para las tablas  	
 \usepackage{tabularx}
-\usepackage{multicol}
-\usepackage{multirow}
-\usepackage{adjustbox}
-%Encabezados bonitos y acordes al reglamento
-\usepackage{fancyhdr}
-\fancyhf{}
+\usepackage{multicol}   
+\usepackage{multirow} 
+\usepackage{adjustbox}  
+%Encabezados bonitos y acordes al reglamento  
+\usepackage{fancyhdr}   
+\fancyhf{}  
 \lhead[\thepage]{\leftmark}
 \rhead[\PFGtitulocorto]{\thepage}
 \setlength{\headheight}{16pt}
-\pagestyle{empty}
+\pagestyle{empty}   
 
 % Paquete para poner la bibliografia en la table of contents
 \usepackage[nottoc,notlot,notlof]{tocbibind}
@@ -136,13 +144,13 @@
 \usepackage{titlesec}
 \titleformat{\chapter}[display]   
 {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}   
-\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
-
-% Para crear subsubsubsection
-\setcounter{secnumdepth}{4}
-\titleformat{\paragraph}
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt} 
+ 
+% Para crear subsubsubsection   
+\setcounter{secnumdepth}{4} 
+\titleformat{\paragraph}     
 {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
-\titlespacing*{\paragraph}
+\titlespacing*{\paragraph}      
 {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
 % Ruta en la que pondremos las imágenes para el documento
@@ -152,8 +160,8 @@
 \renewcommand{\spanishlisttablename}{Índice de tablas}
 \renewcommand{\spanishcontentsname}{Índice}
 % Redefinimos el nombre de apéndice a anexo
-\renewcommand{\appendixname}{Anexos}
-\renewcommand{\appendixtocname}{Anexos}
+\renewcommand{\appendixname}{Anexos}     
+\renewcommand{\appendixtocname}{Anexos} 
 \renewcommand{\appendixpagename}{Anexos}
 
 % Definimos el comando de página en blanco
@@ -165,18 +173,28 @@
 % Definimos el comando de página en blanco sin avanzar numeracion
 \newcommand\paginablancosin{%
     \paginablanco{}
-    \addtocounter{page}{-1}}
-
+    \addtocounter{page}{-1}} 
+      
 % Mayor anchura en las tablas
-\renewcommand{\arraystretch}{1.5}
-% Mayor ancuhura en las fracciones
+\renewcommand{\arraystretch}{1.5}         
+% Mayor anchura en las fracciones  
 \newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 % Comando escribir PFG
 \newcommand{\pfg}{Proyecto Fin de Grado }
 
+% Configuración de los espacios en blanco alrededor de listados
+% \setlength{\abovecaptionskip}{10pt} % Espacio arriba del caption
+% \setlength{\belowcaptionskip}{10pt} % Espacio debajo del caption
+\lstset{
+aboveskip=1.5em,
+belowskip=1.5em,
+}
+ 
+% Para enlaces en el PDF
+\usepackage{hyperref}
 
 % Comenzamos el documento
-\begin{document}
+\begin{document}     
 \pagenumbering{gobble} % para no incluir números en la portada y primera página
 
 % Hacemos la portada
@@ -184,7 +202,7 @@
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics{rosadelosvientos.png}
+    \includegraphics{rosadelosvientos.png}  
 \end{figure}
 
 \begin{center}
@@ -206,7 +224,7 @@
 {\huge \textcolor{black}{Curso \PFGcursoacademico, convocatoria \PFGconvocatoria} \par}
 
 \chapter*{}
-
+ 
 \thispagestyle{empty}
 
 \begin{figure}[!htb]
@@ -233,10 +251,10 @@
 \vfill
 {\Large Fecha de lectura y defensa: \PFGfechadefensa \par}
 
-\end{titlepage}
+\end{titlepage}      
 
 \pagenumbering{Roman} % para comenzar la numeracion de paginas en numeros romanos
-
+ 
 % Agradecimientos
 \chapter*{Agradecimientos}
 \thispagestyle{empty}
@@ -275,39 +293,66 @@ IDE, software development, C language, 8-bit systems, cross-compilation, plugin 
 %% SI NO HAY ÍNDICE DE TABLAS, COMENTAR LAS DOS SIGUIENTES LÍNEAS
 \listoftables    %% Índice de tablas
 \addcontentsline{toc}{section}{Índice de tablas} % Queremos que aparezca en el índice
-
+    
 %% SI NO HAY ÍNDICE DE FIGURAS, COMENTAR LAS DOS SIGUIENTES LÍNEAS
 \listoffigures   %% Índice de figuras
 \addcontentsline{toc}{section}{Índice de figuras} % Queremos que aparezca en el índice
 \newpage
 
-\paginablanco{}
-
+\paginablanco{}   
+ 
 %% Comenzamos con la numeración arábiga y el estilo de cabeceras de páginas definido, porque aquí empieza el contenido
 \pagenumbering{arabic}
 \pagestyle{fancy}
-%% Ejemplo de importación de capítulos
-\subfile{capitulos/C1-introduccion/C1-introduccion}
-\subfile{capitulos/C2-analisis/C2-analisis}
-\subfile{capitulos/C3-disenno/C3-disenno}
-\subfile{capitulos/C4-desarrollo/C4-desarrollo}
-\subfile{capitulos/C5-pruebas/C5-pruebas}
-\subfile{capitulos/C6-conclusiones/C6-conclusiones}
+%% Ejemplo de importación de capítulos         
+\subfile{capitulos/C1-introduccion}
+\subfile{capitulos/C2-analisis}  
+\subfile{capitulos/C3-disenno}
+\subfile{capitulos/C4-desarrollo}
+\subfile{capitulos/C5-planificacion}
+\subfile{capitulos/C6-pruebas}
+\subfile{capitulos/C7-conclusiones}
 
-%% Bibliografía 
+%% Bibliografía   
 \newpage
-\subfile{capitulos/referencias}
-
+\bibliographystyle{plain}
+\bibliography{capitulos/bibliografia} 
+ 
 \clearpage
 
 %% Anexos
-\appendix
-\subfile{capitulos/A1-anexo/A1-anexo}
-\subfile{capitulos/A2-anexo/A2-anexo}
-
+\appendix 
+\subfile{capitulos/A1-anexo}
+\subfile{capitulos/A2-anexo}
+ 
 
 %% cosas de plantilla.tex 
 % \newpage
 % \subfile{capitulos/plantilla.tex}
  
-\end{document} 
+\end{document}  
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
